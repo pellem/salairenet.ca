@@ -1,0 +1,33 @@
+---
+const { title, description } = Astro.props;
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description || 'Simulateur salaire Québec'} />
+    <title>{title || 'Simulateur Salaire'}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <link rel="canonical" href="https://brutnetqc.ca/" />
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://brutnetqc.ca/">
+<meta property="og:title" content="Simulateur Salaire Québec 2025 – Brut ↔ Net">
+<meta property="og:description" content="Calculez votre salaire net au Québec en 2025 selon votre statut (employé ou freelance). Déductions RRQ, RQAP, AE et impôts.">
+<meta property="og:image" content="https://brutnetqc.ca/social-preview.png">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://brutnetqc.ca/">
+<meta name="twitter:title" content="Simulateur Salaire Québec 2025 – Brut ↔ Net">
+<meta name="twitter:description" content="Calculez votre salaire net selon votre salaire brut et votre statut. Déductions à jour pour 2025 au Québec.">
+<meta name="twitter:image" content="https://brutnetqc.ca/social-preview.png">
+
+  </head>
+<body class="font-sans bg-gradient-to-br from-white to-patente-secondary/10 text-gray-800">
+    <main class="px-4 py-8">
+      <slot />
+    </main>
+  </body>
+</html>

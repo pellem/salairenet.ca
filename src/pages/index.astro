@@ -1,0 +1,185 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base 
+  title="Simulateur Salaire Brut ↔ Net Québec 2025 – V3"
+  description="Calculez facilement votre salaire net au Québec pour 2025 selon votre statut (salarié ou autonome). Résultat net annuel, mensuel, bimensuel, et plus."
+>
+
+<header class="bg-white border-b border-gray-200 shadow-sm mb-6">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-patente-primary">💼 Simulateur Brut ↔ Net QC</h1>
+    <nav class="text-sm space-x-4 text-gray-600">
+      <a href="#faq" class="hover:text-patente-accent">FAQ</a>
+      <a href="#methodologie" class="hover:text-patente-accent">Méthodologie</a>
+    </nav>
+  </div>
+</header>
+
+<section class="px-4">
+  <div class="bg-white shadow-2xl border border-gray-300 rounded-2xl p-10 max-w-xl mx-auto transition-transform duration-300 hover:shadow-[0_0_40px_rgba(0,0,0,0.07)]">
+    <h2 class="text-3xl font-bold text-center text-patente-primary mb-4 leading-tight">
+      Calculez votre salaire net<br class="sm:hidden"/> au Québec (2025)
+    </h2>
+    
+
+    <form id="form-salaire" class="space-y-6" novalidate>
+
+      <div>
+        <label for="statut" class="block text-gray-700 font-medium mb-1">Statut</label>        <select id="statut" class="w-full p-3 border border-gray-300 rounded-lg">
+          <option value="salarie">Salarié</option>
+          <option value="freelance">Travailleur autonome</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label for="salaire-annuel" class="block text-gray-700 font-medium mb-1" title="Entrez un montant brut annuel pour le calcul">💼 Annuel ($)</label>          <input type="number" id="salaire-annuel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="75000" aria-describedby="help-annuel" />
+        </div>
+        <div>
+          <label for="salaire-mensuel" class="block text-gray-700 font-medium mb-1" title="Entrez votre salaire mensuel si connu">💸 Mensuel ($)</label>
+          <input type="number" id="salaire-mensuel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="6250" aria-describedby="help-mensuel" />
+        </div>
+        <div>
+          <label for="salaire-mensuel" class="block text-gray-700 font-medium mb-1" title="Entrez votre salaire mensuel si connu">💸 Mensuel ($)</label>
+          <input type="number" id="salaire-horaire" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="41.25" aria-describedby="help-horaire" />
+        </div>
+      </div>
+
+      <div>
+        <label for="heures-semaine" class="block text-gray-700 font-medium mb-1">
+          Heures / semaine
+        </label>
+        <input 
+          type="number" 
+          id="heures-semaine"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent"
+          min="10" max="60" step="1" value="35"
+        />
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-2 mb-6">
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(40000)">40 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(50000)">50 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(60000)">60 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(75000)">75 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(90000)">90 000 $</button>
+      </div>
+      
+
+      <p id="form-error" class="text-red-600 font-medium hidden">⚠️ Veuillez remplir au moins un des champs : Annuel, Mensuel ou Horaire.</p>
+
+      <button type="submit"
+      class="bg-gradient-to-r from-patente-primary to-patente-accent text-white px-4 py-3 rounded-xl w-full font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200">
+      ✨ Calculer mon salaire net ✨
+    </button>
+    
+    </form>
+  </div>
+</section>
+
+<section class="mt-10 hidden animate-fade-in" id="resultat" aria-live="polite">
+  <div class="max-w-3xl mx-auto bg-white shadow-lg border border-gray-200 rounded-xl p-6 space-y-4">
+    <h3 id="titre-resultat" class="text-xl font-bold text-gray-800">
+      💰 Résultat net pour 
+      <span 
+        id="revenu-dynamique" 
+        class="inline-block text-green-700 font-semibold opacity-100 transition-opacity duration-500 ease-in-out"
+      >–</span>
+    </h3>
+       
+        <p class="text-lg font-semibold">
+      Tu gagnes environ <span id="net-mensuel-summary" class="text-green-700">–</span> $ net par mois.
+    </p>
+
+    <ul class="text-gray-700 space-y-1">
+      <li>🗓️ <strong>Annuel :</strong> <span id="net-annuel">–</span> $</li>
+      <li>📅 <strong>Mensuel :</strong> <span id="net-mensuel">–</span> $</li>
+      <li>📆 <strong>Bimensuel :</strong> <span id="net-bimensuel">–</span> $</li>
+      <li>📉 <strong>Aux deux semaines :</strong> <span id="net-biweekly">–</span> $</li>
+      <li>⏱️ <strong>Horaire :</strong> <span id="net-horaire">–</span> $</li>
+    </ul>
+
+    <h4 class="text-lg font-semibold text-gray-800 pt-4">📊 Détails des déductions</h4>
+    <ul class="text-gray-600 space-y-1">
+      <li>RRQ : <span id="rrq-val">–</span> $</li>
+      <li>RQAP : <span id="rqap-val">–</span> $</li>
+      <li>Assurance-emploi : <span id="ae-val">–</span> $</li>
+      <li>Impôt fédéral : <span id="fed-val">–</span> $</li>
+      <li>Impôt provincial : <span id="prov-val">–</span> $</li>
+      <p id="resume-fiscal" class="text-sm text-gray-700 mt-3 italic">
+        <!-- Injecté dynamiquement -->
+      </p>
+    </ul>
+
+    <div class="pt-6">
+      <div id="comparatif-container" class="bg-gray-50 border border-gray-200 p-5 rounded-xl space-y-3">
+        <h4 class="text-lg font-bold text-patente-primary">📊 Comparatif avec le salaire moyen au Québec (2025)</h4>
+        <p class="text-sm text-gray-700" id="comparatif-dynamique" aria-live="polite">
+          <!-- Injecté dynamiquement -->
+        </p>
+        <ul class="list-disc pl-5 text-gray-700 text-sm">
+          <li>Hommes : 60 200 $</li>
+          <li>Femmes : 51 800 $</li>
+          <li>Tranche 30-39 ans : 58 400 $</li>
+          <li>Tech/ingénierie : 72 000 $</li>
+        </ul>
+        <p class="text-xs text-gray-500">Source : <a href="https://statistique.quebec.ca/" class="underline text-patente-accent" target="_blank">Institut de la statistique du Québec</a></p>
+      </div>
+      <h4 class="text-lg font-semibold text-gray-800 mt-6">📌 Conseils personnalisés pour gérer ton salaire</h4>
+      <div class="h-2"></div>     
+      <ul class="list-disc pl-5 text-gray-700 space-y-1" id="conseils-dynamiques">
+        <!-- Contenu dynamique injecté par JS -->
+      </ul>
+      <p class="text-sm text-gray-500 pt-2">
+        Inspiré des meilleures pratiques de
+        <a href="https://www.reddit.com/r/QuebecFinance/" target="_blank" class="underline text-patente-accent">r/QuebecFinance/</a>
+        et du guide Budget 101 de l’AMF.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script src="/script.js" defer></script>
+<script src="/redirect.js" defer></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Quel est le salaire net pour 75 000 $ brut ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "En 2025 au Québec, un salaire brut de 75 000 $ donne environ 48 000 $ net après impôts et déductions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quelle est la différence entre salaire brut et net ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Le salaire brut est le montant avant déductions. Le salaire net est ce qui reste après impôts, RRQ, AE, RQAP, etc."
+      }
+    }
+  ]
+}
+</script>
+
+ <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Simulateur Salaire Québec",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "url": "https://brutnetqc.ca",
+  "description": "Calculez votre salaire net au Québec selon votre statut en 2025. Détail des déductions et conseils personnalisés."
+}
+</script>
+  
+
+</Base>
