@@ -1,0 +1,130 @@
+---
+import { getStaticPaths as generatePaths } from '../../lib/generatePaths';
+import { calculerSalaireNet } from '../../lib/salaire';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const salaires = [
+    33488, 31696, 32884, 35000, 40000, 42884,
+    45000, 50000, 52000, 55000, 60000, 65000, 70000,
+    72800, 75000, 80000, 85000, 90000, 95000, 100000
+  ];
+  const statuts = ['salarie', 'freelance'];
+
+  return statuts.flatMap((statut) =>
+    salaires.map((salaire) => ({
+      params: { statut, salaire: salaire.toString() }
+    }))
+  );
+}
+
+const { salaire, statut } = Astro.params;
+const salaireNum = Number(salaire);
+const resultat = calculerSalaireNet(salaireNum, statut); // Assure-toi que ta fonction accepte un 2e param
+const format = (val) => val.toLocaleString('fr-CA', { maximumFractionDigits: 0 }) + ' $';
+
+const statutLabel = statut === 'freelance' ? 'travailleur autonome (freelance)' : 'salarié';
+---
+
+<link rel="canonical" href={`https://salairenet.ca/?salaire=${salaireNum}&statut=${statut}`} />
+
+<Base 
+  title={`💼 ${salaireNum} $ brut en net pour un ${statutLabel} au Québec (2025) | Simulateur salaire net 2025`}
+  description={`Découvrez combien ${salaireNum} $ brut représente en net au Québec pour un ${statutLabel} en 2025. Calculateur fiable avec impôts, RRQ, AE et RQAP selon le statut.`}
+>
+  <section class="max-w-2xl mx-auto px-4 py-10">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+      {salaireNum} $ brut = <span class="text-green-700">{format(resultat.net)}</span> net en 2025 ({statutLabel})
+    </h1>
+
+    <p class="text-gray-700 mb-6">
+      Vous touchez <strong>{format(resultat.net)}</strong> net par an si votre salaire brut annuel est de <strong>{salaireNum} $</strong> en tant que {statutLabel} au Québec. 
+      Ce calcul inclut toutes les déductions applicables : impôt fédéral, impôt provincial, RRQ, AE et RQAP, selon votre statut.
+    </p>
+
+    <ul class="space-y-2 text-gray-800 mb-6">
+      <li>💰 <strong>Impôt fédéral</strong> : {format(resultat.fed)}</li>
+      <li>💰 <strong>Impôt provincial</strong> : {format(resultat.prov)}</li>
+      <li>🏦 <strong>RRQ</strong> : {format(resultat.rrq)}</li>
+      <li>👶 <strong>RQAP</strong> : {format(resultat.rqap)}</li>
+      {statut === 'salarie' && <li>🛡️ <strong>Assurance-emploi (AE)</strong> : {format(resultat.ae)}</li>}
+    </ul>
+
+    <a href="/" class="inline-block mt-4 px-6 py-3 bg-gray-900 text-white font-medium rounded hover:bg-gray-800 transition">
+      🔁 Faire une autre simulation
+    </a>
+
+    <hr class="my-10"/>
+
+    <h2 class="text-xl font-semibold mb-4">🔍 Combien fait {salaireNum} $ brut en net ?</h2>
+    <p class="text-gray-700 mb-4">
+      En tant que {statutLabel} au Québec en 2025, {salaireNum} $ brut équivaut à environ <strong>{format(resultat.net)}</strong> net par an. 
+      Ce montant tient compte des cotisations et des impôts spécifiques à votre statut.
+    </p>
+
+    <h2 class="text-xl font-semibold mb-4">📊 Simulation nette pour un salaire brut de {salaireNum} $ ({statutLabel})</h2>
+    <p class="text-gray-700 mb-4">
+      Ce simulateur est gratuit, rapide, et pensé pour les {statut === 'freelance' ? 'travailleurs autonomes' : 'employés'} québécois. Il utilise les taux 2025 à jour.
+    </p>
+
+    <h2 class="text-xl font-semibold mb-4">🤔 Questions fréquentes</h2>
+    <details class="mb-4">
+      <summary class="font-medium cursor-pointer">Quel est le net pour {salaireNum} $ brut en tant que {statutLabel} ?</summary>
+      <p class="mt-2 text-gray-700">
+        Pour {salaireNum} $ brut par an, un {statutLabel} reçoit environ <strong>{format(resultat.net)}</strong> net au Québec, en 2025.
+      </p>
+    </details>
+
+    <details class="mb-4">
+      <summary class="font-medium cursor-pointer">Comment estimer son salaire net ?</summary>
+      <p class="mt-2 text-gray-700">
+        Utilisez notre <a href="/" class="text-blue-600 underline">simulateur gratuit</a>. Choisissez votre statut, entrez votre brut, et recevez votre net calculé avec précision.
+      </p>
+    </details>
+
+    <details>
+      <summary class="font-medium cursor-pointer">Le salaire brut inclut-il les impôts ?</summary>
+      <p class="mt-2 text-gray-700">
+        Non. Le brut est avant déductions. Le net est ce que vous recevez réellement après impôts, RRQ, AE et RQAP selon votre statut.
+      </p>
+    </details>
+
+    <p class="text-sm text-gray-500 mt-8">
+      Cette page est générée statiquement pour un chargement ultra-rapide et un référencement optimal.
+    </p>
+  </section>
+
+  <!-- Schema.org FAQ SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Quel est le net pour {salaireNum} $ brut en tant que {statutLabel} ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "{salaireNum} $ brut correspond à environ {format(resultat.net)} $ net en tant que {statutLabel} au Québec en 2025, après déductions fiscales."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment estimer son salaire net ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Utilisez notre simulateur en ligne, entrez votre salaire brut et sélectionnez votre statut (freelance ou salarié), le résultat s'affiche instantanément."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Le salaire brut inclut-il les impôts ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Non. Le salaire brut est avant impôts. Le net est ce qu'il reste une fois les déductions appliquées selon votre statut (impôt fédéral, provincial, RRQ, AE, RQAP)."
+        }
+      }
+    ]
+  }
+  </script>
+</Base>

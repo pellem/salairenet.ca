@@ -2,3 +2,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#federal-bar-graph div,
+#provincial-bar-graph div {
+  min-height: 1.25rem; /* 20px, pour que ça soit visible */
+}
+
+#federal-bar-graph,
+#provincial-bar-graph {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
