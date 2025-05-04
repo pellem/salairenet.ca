@@ -9,8 +9,10 @@ import Base from '../layouts/Base.astro';
 
 <header class="bg-white border-b border-gray-200 shadow-sm mb-6">
   <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-patente-primary">💼 Simulateur Brut ↔ Net QC</h1>
-    <nav class="text-sm space-x-4 text-gray-600">
+    <h1 class="text-2xl font-bold text-patente-primary">
+      💼 Simulateur de salaire net au Québec (2025) – Salariés & Autonomes
+    </h1>
+        <nav class="text-sm space-x-4 text-gray-600">
       <a href="#faq" class="hover:text-patente-accent">FAQ</a>
       <a href="#methodologie" class="hover:text-patente-accent">Méthodologie</a>
     </nav>
@@ -31,6 +33,14 @@ import Base from '../layouts/Base.astro';
           <option value="salarie">Salarié</option>
           <option value="freelance">Travailleur autonome</option>
         </select>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-2 mb-6">
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(40000)">40 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(50000)">50 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(60000)">60 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(75000)">75 000 $</button>
+        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(90000)">90 000 $</button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -58,15 +68,6 @@ import Base from '../layouts/Base.astro';
           min="10" max="60" step="1" value="35"
         />
       </div>
-
-      <div class="flex flex-wrap justify-center gap-2 mb-6">
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(40000)">40 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(50000)">50 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(60000)">60 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(75000)">75 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(90000)">90 000 $</button>
-      </div>
-      
 
       <p id="form-error" class="text-red-600 font-medium hidden">⚠️ Veuillez remplir au moins un des champs : Annuel, Mensuel ou Horaire.</p>
 
@@ -176,10 +177,40 @@ import Base from '../layouts/Base.astro';
   "name": "Simulateur Salaire Québec",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "All",
-  "url": "https://brutnetqc.ca",
+  "url": "https://salairenet.ca",
   "description": "Calculez votre salaire net au Québec selon votre statut en 2025. Détail des déductions et conseils personnalisés."
 }
 </script>
   
+
+<section id="faq" class="max-w-3xl mx-auto px-4 py-16 text-gray-800">
+  <h2 class="text-2xl font-bold mb-4">❓ Foire aux questions</h2>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Quel est le salaire net pour 75 000 $ brut ?</summary>
+    <p class="mt-2 text-sm text-gray-700">En 2025 au Québec, un salaire brut de 75 000 $ donne environ 48 000 $ net après impôts et déductions.</p>
+  </details>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Quelle est la différence entre salaire brut et net ?</summary>
+    <p class="mt-2 text-sm text-gray-700">Le salaire brut est ce que vous gagnez avant impôts. Le net est ce que vous touchez après toutes les déductions (impôts, RRQ, AE, etc.).</p>
+  </details>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Combien d’impôts sont déduits au Québec en 2025 ?</summary>
+    <p class="mt-2 text-sm text-gray-700">En moyenne, les salariés perdent entre 30 % et 40 % de leur brut annuel en impôts et cotisations sociales.</p>
+  </details>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Puis-je utiliser ce simulateur si je suis travailleur autonome ?</summary>
+    <p class="mt-2 text-sm text-gray-700">Oui ! Le simulateur tient compte de votre statut et applique les bons taux de déductions.</p>
+  </details>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Est-ce à jour pour l’année 2025 ?</summary>
+    <p class="mt-2 text-sm text-gray-700">Oui, les taux de cotisation et les barèmes d’imposition sont mis à jour pour l’année fiscale 2025 au Québec.</p>
+  </details>
+</section>
+
 
 </Base>

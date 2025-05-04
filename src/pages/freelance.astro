@@ -2,11 +2,51 @@
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="Simulateur pour travailleurs autonomes au Québec – 2025" description="Calculateur de salaire net 2025 pour travailleurs autonomes au Québec. Taux personnalisés, cotisations, impôts, etc.">
-  <section class="px-4 py-16 max-w-3xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold text-patente-primary">👩‍💼 Simulateur pour travailleurs autonomes</h1>
-    <p class="text-gray-700">Retrouvez les mêmes fonctionnalités que la version salarié, avec un calcul adapté à votre statut.</p>
-    <p><a href="/?statut=freelance" class="underline text-patente-accent">Accéder au simulateur autonome →</a></p>
-    <p class="text-sm text-gray-500">Les déductions AE sont supprimées et les taux d'imposition ajustés.</p>
-  </section>
+<Base 
+  title="Salaire net pour travailleurs autonomes au Québec (2025)"
+  description="Découvrez combien vous touchez vraiment comme freelance au Québec en 2025. Calculez votre revenu net après impôts et cotisations."
+>
+
+<section class="max-w-3xl mx-auto px-4 py-12 text-gray-800">
+  <h1 class="text-3xl font-bold mb-6 text-patente-primary">💼 Salaire net pour travailleurs autonomes (Québec 2025)</h1>
+
+  <p class="mb-4">
+    Être <strong>travailleur autonome</strong> au Québec, c’est gérer sa liberté... mais aussi ses charges 💸.
+    Entre la RRQ à 18 %, les impôts, le RQAP et l'absence d’assurance-emploi, il est crucial de bien anticiper son <strong>revenu net</strong>.
+  </p>
+
+  <p class="mb-6">
+    Ce simulateur vous permet de connaître votre <strong>salaire net réel</strong>, que vous facturiez 30 000 $ ou 120 000 $. Vous pouvez l’utiliser pour vos prévisions annuelles, votre déclaration d’impôts ou simplement pour mieux gérer vos finances.
+  </p>
+
+  <a href="/" class="inline-block bg-patente-primary hover:bg-patente-accent text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-transform hover:scale-105">
+    👉 Retourner au simulateur principal
+  </a>
+</section>
+
+<section class="mt-10">
+  <div class="max-w-4xl mx-auto px-4">
+    <iframe src="/" class="w-full h-[800px] border-2 border-gray-200 rounded-xl"></iframe>
+  </div>
+</section>
+
+<section class="max-w-3xl mx-auto px-4 py-16 text-gray-800">
+  <h2 class="text-2xl font-bold mb-4">🤔 FAQ spécifique aux freelances</h2>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Dois-je cotiser à l'assurance-emploi en tant qu'autonome ?</summary>
+    <p class="mt-2 text-sm text-gray-700">Non, sauf si vous vous inscrivez volontairement au régime spécial pour travailleurs autonomes.</p>
+  </details>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Quels sont les taux de déductions pour un freelance en 2025 ?</summary>
+    <p class="mt-2 text-sm text-gray-700">RRQ : 18 %, RQAP : 1 %, AE : 0 %, Impôt fédéral : 14 %, Impôt provincial : 12 % (estimation pour revenus moyens).</p>
+  </details>
+
+  <details class="mb-4">
+    <summary class="font-semibold cursor-pointer">Le simulateur prend-il en compte les dépenses professionnelles ?</summary>
+    <p class="mt-2 text-sm text-gray-700">Non, ce simulateur considère un revenu brut avant déductions fiscales. Pour optimiser, pensez à consulter un fiscaliste.</p>
+  </details>
+</section>
+
 </Base>
