@@ -392,6 +392,25 @@ const url = new URLSearchParams(window.location.search);
 const salaireParam = url.get('salaire');
 const statutParam = url.get('statut');
 
+const btnShare = document.getElementById('btn-share');
+const confirmShare = document.getElementById('share-confirm');
+
+if (btnShare && confirmShare) {
+  btnShare.addEventListener('click', async () => {
+    const currentUrl = window.location.href;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      confirmShare.classList.remove('hidden');
+      setTimeout(() => confirmShare.classList.add('hidden'), 2500);
+    } catch (err) {
+      console.error("Échec de la copie dans le presse-papier :", err);
+      confirmShare.textContent = "Erreur lors de la copie";
+      confirmShare.classList.remove('hidden');
+    }
+  });
+}
+
+
 if (
   salaireParam &&
   inputAnnuel instanceof HTMLInputElement &&
