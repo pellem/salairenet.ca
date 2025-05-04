@@ -337,6 +337,14 @@ if (listePaliers) {
         <li class="text-gray-600 pt-2">Sur <strong>${formatMoney(netMensuel + totalDeduction / 12)}</strong> générés/mois, l’État en prend <strong class="text-red-700">${impotsMensuels}</strong> soit <strong class="text-red-700">${pourcentagePris}%</strong>.</li>`;
     }
 
+    // ✅ Mettre à jour l'URL avec les paramètres actuels (partageables)
+const params = new URLSearchParams();
+params.set('salaire', revenuAnnuel.toFixed(0));
+params.set('statut', statut);
+const newUrl = `${window.location.pathname}?${params.toString()}`;
+window.history.replaceState({}, '', newUrl);
+
+
     function renderTaxDetails(brackets, income, targetEl, totalEl) {
       let html = '';
       let totalTax = 0;
@@ -376,14 +384,6 @@ if (listePaliers) {
       document.getElementById('total-tax-rate').textContent = `${((totalDeduction / revenuAnnuel) * 100).toFixed(1)} %`;
       breakdown.classList.remove('hidden');
     }
-  
-    // Met à jour l'URL après le calcul
-const params = new URLSearchParams();
-params.set('salaire', revenuAnnuel.toFixed(0));
-params.set('statut', statut);
-const newUrl = `${window.location.pathname}?${params.toString()}`;
-window.history.replaceState({}, '', newUrl);
-
     
   });
 
