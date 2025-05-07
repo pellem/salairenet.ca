@@ -138,6 +138,14 @@ document.addEventListener("DOMContentLoaded", function () {
   updateFreelanceMode();
 
   form.addEventListener('submit', (e) => {
+        // 📈 Google Analytics – Event: Calcul simulé
+        if (typeof gtag === 'function') {
+          gtag('event', 'submit_simulateur', {
+            event_category: 'Interaction',
+            event_label: 'Clic bouton calcul',
+            value: parseFloat(inputAnnuel.value) || 0
+          });
+        }    
     e.preventDefault();
     const brut = parseFloat(inputAnnuel.value);
     const mensuel = parseFloat(inputMensuel.value);
