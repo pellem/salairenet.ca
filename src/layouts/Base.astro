@@ -12,19 +12,29 @@ const { title, description } = Astro.props;
     <link rel="stylesheet" href="/src/styles/global.css" />
     <link rel="canonical" href="https://salairenet.ca/" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://salairenet.ca/">
-<meta property="og:title" content="Simulateur Salaire Québec 2025 – Brut ↔ Net">
-<meta property="og:description" content="Calculez votre salaire net au Québec en 2025 selon votre statut (employé ou freelance). Déductions RRQ, RQAP, AE et impôts.">
-<meta property="og:image" content="https://salairenet.ca/social-preview.png">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://salairenet.ca/">
+    <meta property="og:title" content="Simulateur Salaire Québec 2025 – Brut ↔ Net">
+    <meta property="og:description" content="Calculez votre salaire net au Québec en 2025 selon votre statut (employé ou freelance). Déductions RRQ, RQAP, AE et impôts.">
+    <meta property="og:image" content="https://salairenet.ca/social-preview.png">
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://salairenet.ca/">
-<meta name="twitter:title" content="Simulateur Salaire Québec 2025 – Brut ↔ Net">
-<meta name="twitter:description" content="Calculez votre salaire net selon votre salaire brut et votre statut. Déductions à jour pour 2025 au Québec.">
-<meta name="twitter:image" content="https://salairenet.ca/social-preview.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://salairenet.ca/">
+    <meta name="twitter:title" content="Simulateur Salaire Québec 2025 – Brut ↔ Net">
+    <meta name="twitter:description" content="Calculez votre salaire net selon votre salaire brut et votre statut. Déductions à jour pour 2025 au Québec.">
+    <meta name="twitter:image" content="https://salairenet.ca/social-preview.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
 
   </head>
 <body class="font-sans bg-gradient-to-br from-white to-patente-secondary/10 text-gray-800">
