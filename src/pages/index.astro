@@ -24,6 +24,11 @@ import Base from '../layouts/Base.astro';
     <h2 class="text-3xl font-bold text-center text-patente-primary mb-4 leading-tight">
       Calculez votre salaire net<br class="sm:hidden"/> au Québec (2025)
     </h2>
+
+    <p class="text-center text-sm text-gray-600 max-w-lg mx-auto mb-6">
+  Ce simulateur vous permet d’estimer votre salaire net au Québec pour 2025 en fonction de votre statut (salarié ou travailleur autonome), avec prise en compte des cotisations RRQ, RQAP, AE et impôts.
+</p>
+
     
 
     <form id="form-salaire" class="space-y-6" novalidate>
@@ -55,6 +60,11 @@ import Base from '../layouts/Base.astro';
           <label for="salaire-horaire" class="block text-gray-700 font-medium mb-1" title="Entrez votre salaire horaire si connu">⏲️ Horaire ($)</label>
           <input type="number" id="salaire-horaire" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="41.25" aria-describedby="help-horaire" />
         </div>
+        <div class="hidden">
+  <label for="province" class="block text-gray-700 font-medium mb-1">Province</label>
+  <input type="text" id="province" name="province" value="Québec" readonly />
+</div>
+
       </div>
 
       <div>

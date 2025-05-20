@@ -1,36 +1,49 @@
-﻿const fs = require('fs');
-const path = require('path');
+﻿import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const replacements = {
-  "Ã©": "é", "Ã¨": "è", "Ãª": "ê", "Ã ": "à", "Ã¢": "â", "Ã´": "ô",
-  "Ã»": "û", "Ã¹": "ù", "Ã§": "ç", "Ã‰": "É", "Ã€": "À", "â€“": "–",
-  "â€”": "—", "â€¦": "…", "â€œ": "“", "â€": "”", "â€™": "’",
-  "â€²": "′", "â€³": "″", "â€¢": "•", "Â": ""
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-function fixBadChars(content) {
-  for (const key in replacements) {
-    content = content.split(key).join(replacements[key]);
+const targetDir = path.join(__dirname, 'src/pages/salaires');
+
+function fixAstroFile(filePath) {
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  // ✅ Regex robuste : gère BOM + espaces + retour chariot
+  const frontmatterMatch = content.match(/^(\uFEFF)?\s*---[\s\S]*?---/);
+
+  if (!frontmatterMatch) {
+    console.warn(`❌ Pas de frontmatter détecté dans : ${filePath}`);
+    return;
   }
-  return content;
+
+  const frontmatter = frontmatterMatch[0];
+  const rest = content.slice(frontmatter.length).trimStart();
+
+  // Supprime tous les imports Base existants
+  const cleanedRest = rest
+    .replace(/^import\s+Base\s+from\s+['"].*?['"];?\s*/gm, '')
+    .replace(/^(\r\n|\n|\r)+/, '');
+
+  const newImport = "import Base from '../../layouts/Base.astro';";
+
+  const finalContent = `${frontmatter}\n\n${newImport}\n\n${cleanedRest}`;
+  fs.writeFileSync(filePath, finalContent, 'utf8');
+  console.log(`✅ Corrigé : ${filePath}`);
 }
 
-function processFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const cleaned = fixBadChars(content);
-  fs.writeFileSync(filePath, cleaned, 'utf8');
-  console.log(`✅ Nettoyé : ${filePath}`);
-}
-
-function walk(dir) {
-  fs.readdirSync(dir).forEach(file => {
+function walkAndFix(dir) {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
     const fullPath = path.join(dir, file);
-    if (fs.statSync(fullPath).isDirectory()) {
-      walk(fullPath);
-    } else if (fullPath.endsWith('.astro')) {
-      processFile(fullPath);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      walkAndFix(fullPath);
+    } else if (file.endsWith('.astro')) {
+      fixAstroFile(fullPath);
     }
-  });
+  }
 }
 
-walk('src/pages/salaires');
+walkAndFix(targetDir);
