@@ -141,8 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // 📈 Google Analytics – Event: Calcul simulé
         if (typeof gtag === 'function') {
           gtag('event', 'submit_simulateur', {
-            event_category: 'Interaction',
-            event_label: 'Clic bouton calcul',
+            event_category: 'Conversion',
+            event_label: 'btn_clic',
             value: parseFloat(inputAnnuel.value) || 0
           });
         }    
