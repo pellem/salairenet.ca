@@ -1,0 +1,73 @@
+{
+  "budgetRules": {
+    "housing": {
+      "percentage": 30,
+      "description": "Maximum recommandé pour le logement"
+    },
+    "emergency": {
+      "months": 6,
+      "description": "Fonds d'urgence en mois de dépenses"
+    },
+    "retirement": {
+      "percentage": 15,
+      "description": "Épargne retraite recommandée"
+    }
+  },
+  "savingsRecommendations": [
+    {
+      "minSalary": 0,
+      "maxSalary": 40000,
+      "celiapp": 100,
+      "rrsp": 50,
+      "tfsa": 100,
+      "tips": [
+        "Concentrez-vous sur le CELIAPP pour l'achat d'une première maison",
+        "Commencez petit mais soyez régulier dans vos épargnes"
+      ]
+    },
+    {
+      "minSalary": 40000,
+      "maxSalary": 60000,
+      "celiapp": 200,
+      "rrsp": 150,
+      "tfsa": 200,
+      "tips": [
+        "Maximisez votre CELIAPP (8000$/an)",
+        "Utilisez le REER pour réduire vos impôts"
+      ]
+    },
+    {
+      "minSalary": 60000,
+      "maxSalary": 80000,
+      "celiapp": 300,
+      "rrsp": 400,
+      "tfsa": 300,
+      "tips": [
+        "Équilibrez REER et CELI selon votre taux d'imposition",
+        "Considérez un conseiller financier"
+      ]
+    },
+    {
+      "minSalary": 80000,
+      "maxSalary": 120000,
+      "celiapp": 400,
+      "rrsp": 800,
+      "tfsa": 500,
+      "tips": [
+        "Maximisez votre REER pour l'optimisation fiscale",
+        "Diversifiez vos investissements"
+      ]
+    },
+    {
+      "minSalary": 120000,
+      "maxSalary": 999999,
+      "celiapp": 500,
+      "rrsp": 1200,
+      "tfsa": 600,
+      "tips": [
+        "Consultez un planificateur financier",
+        "Explorez les stratégies d'investissement avancées"
+      ]
+    }
+  ]
+}

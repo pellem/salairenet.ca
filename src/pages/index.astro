@@ -3,342 +3,475 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base 
-  title="Salaire Net Québec 2025 | Simulateur pour Salariés & Freelances"
-  description="Calculez facilement votre salaire net au Québec pour 2025 selon votre statut (salarié ou autonome). Résultat net annuel, mensuel, bimensuel, et plus."
+  title="Calculateur Salaire Net Québec 2025 | Simulation Complète et Personnalisée"
+  description="Le calculateur de salaire le plus complet du Québec. Calcul en temps réel, conseils personnalisés, comparaisons sociales et options avancées. Découvrez votre vrai net !"
 >
 
-<header class="bg-white border-b border-gray-200 shadow-sm mb-6">
-  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-patente-primary">
-      💼 SalaireNet.ca – Simulateur de salaire net au Québec (2025)
-    </h1>
-        <nav class="text-sm space-x-4 text-gray-600">
-      <a href="#faq" class="hover:text-patente-accent">FAQ</a>
-      <a href="#methodologie" class="hover:text-patente-accent">Méthodologie</a>
-    </nav>
+<header class="bg-gradient-to-br from-emerald-50 via-white to-blue-50 border-b border-gray-100 shadow-sm sticky top-0 z-50 backdrop-blur-sm">
+  <div class="max-w-6xl mx-auto px-4 py-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-xl">💰</span>
+        </div>
+        <h1 class="text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+          SalaireNet.ca
+        </h1>
+      </div>
+      
+      <!-- Province Toggle -->
+      <div class="flex items-center space-x-2 bg-white rounded-full p-1 shadow-sm border border-gray-200">
+        <button id="toggle-qc" class="province-toggle active px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200">
+          🍁 Québec
+        </button>
+        <button id="toggle-on" class="province-toggle px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200">
+          🏢 Ontario  
+        </button>
+      </div>
+    </div>
   </div>
 </header>
 
-<section class="px-4">
-  <div class="bg-white shadow-2xl border border-gray-300 rounded-2xl p-10 max-w-xl mx-auto transition-transform duration-300 hover:shadow-[0_0_40px_rgba(0,0,0,0.07)]">
-    <h2 class="text-3xl font-bold text-center text-patente-primary mb-4 leading-tight">
-      Calculez votre salaire net<br class="sm:hidden"/> au Québec (2025)
-    </h2>
-
-    <p class="text-center text-sm text-gray-600 max-w-lg mx-auto mb-6">
-  Ce simulateur vous permet d’estimer votre salaire net au Québec pour 2025 en fonction de votre statut (salarié ou travailleur autonome), avec prise en compte des cotisations RRQ, RQAP, AE et impôts.
-</p>
-
+<main class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
+  
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 py-6 md:py-8">
     
-
-    <form id="form-salaire" class="space-y-6" novalidate>
-
-      <div>
-        <label for="statut" class="block text-gray-700 font-medium mb-1">Statut</label>        <select id="statut" class="w-full p-3 border border-gray-300 rounded-lg">
-          <option value="salarie">Salarié</option>
-          <option value="freelance">Travailleur autonome</option>
-        </select>
-      </div>
-
-      <div class="flex flex-wrap justify-center gap-2 mb-6">
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(40000)">40 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(50000)">50 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(60000)">60 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(75000)">75 000 $</button>
-        <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-patente-accent text-sm rounded-lg" onclick="remplirSalaire(90000)">90 000 $</button>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label for="salaire-annuel" class="block text-gray-700 font-medium mb-1" title="Entrez un montant brut annuel pour le calcul">💼 Annuel ($)</label>          <input type="number" id="salaire-annuel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="75000" aria-describedby="help-annuel" />
-        </div>
-        <div>
-          <label for="salaire-mensuel" class="block text-gray-700 font-medium mb-1" title="Entrez votre salaire mensuel si connu">💸 Mensuel ($)</label>
-          <input type="number" id="salaire-mensuel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="6250" aria-describedby="help-mensuel" />
-        </div>
-        <div>
-          <label for="salaire-horaire" class="block text-gray-700 font-medium mb-1" title="Entrez votre salaire horaire si connu">⏲️ Horaire ($)</label>
-          <input type="number" id="salaire-horaire" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent" step="any" placeholder="41.25" aria-describedby="help-horaire" />
-        </div>
-        <div class="hidden">
-  <label for="province" class="block text-gray-700 font-medium mb-1">Province</label>
-  <input type="text" id="province" name="province" value="Québec" readonly />
-</div>
-
-      </div>
-
-      <div>
-        <label for="heures-semaine" class="block text-gray-700 font-medium mb-1">
-          Heures / semaine
-        </label>
-        <input 
-          type="number" 
-          id="heures-semaine"
-          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-patente-accent"
-          min="10" max="60" step="1" value="35"
-        />
-      </div>
-
-      <p id="form-error" class="text-red-600 font-medium hidden">⚠️ Veuillez remplir au moins un des champs : Annuel, Mensuel ou Horaire.</p>
-
-      <button type="submit"
-      class="bg-gradient-to-r from-patente-primary to-patente-accent text-white px-4 py-3 rounded-xl w-full font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200">
-      ✨ Calculer mon salaire net ✨
-    </button>
-    
-    </form>
-  </div>
-</section>
-
-<section class="mt-10 hidden animate-fade-in" id="resultat" aria-live="polite">
-  <div class="max-w-3xl mx-auto bg-white shadow-lg border border-gray-200 rounded-xl p-6 space-y-4">
-    <h3 id="titre-resultat" class="text-xl font-bold text-gray-800">
-      💰 Résultat net pour 
-      <span 
-        id="revenu-dynamique" 
-        class="inline-block text-green-700 font-semibold opacity-100 transition-opacity duration-500 ease-in-out"
-      >–</span>
-    </h3>
-       
-    <p class="text-lg font-semibold">
-      En 2025, votre salaire net mensuel est d’environ <span id="net-mensuel-summary" class="text-green-700">–</span> $.
-    </p>
-    
-
-    <ul class="text-gray-700 space-y-1">
-      <li>🗓️ <strong>Annuel :</strong> <span id="net-annuel">–</span> $</li>
-      <li>📅 <strong>Mensuel :</strong> <span id="net-mensuel">–</span> $</li>
-      <li>📆 <strong>Bimensuel :</strong> <span id="net-bimensuel">–</span> $</li>
-      <li>📉 <strong>Aux deux semaines :</strong> <span id="net-biweekly">–</span> $</li>
-      <li>⏱️ <strong>Horaire :</strong> <span id="net-horaire">–</span> $</li>
-    </ul>
-
-    <div class="pt-6 space-y-4">
-
-      <!-- 📊 Détails des déductions -->
-      <details class="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm text-sm transition-all duration-300 hover:shadow-md">
-        <summary class="cursor-pointer font-medium text-gray-800 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📊</span>
-            <span>Détails des déductions</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-500 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </summary>
-    
-        <ul class="text-gray-600 space-y-1 mt-4">
-          <li>RRQ : <span id="rrq-val" class="font-semibold text-green-700">–</span> $</li>
-          <li>RQAP : <span id="rqap-val" class="font-semibold text-green-700">–</span> $</li>
-          <li>Assurance-emploi : <span id="ae-val" class="font-semibold text-green-700">–</span> $</li>
-          <li>Impôt fédéral : <span id="fed-val" class="font-semibold text-red-600">–</span> $</li>
-          <li>Impôt provincial : <span id="prov-val" class="font-semibold text-red-600">–</span> $</li>
-        </ul>
-        <p id="resume-fiscal" class="text-sm text-gray-700 mt-3 italic"></p>
-      </details>
-    
-      <!-- 📊 Comparatif avec le salaire moyen -->
-      <details class="group rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm text-sm transition-all duration-300 hover:shadow-md">
-        <summary class="cursor-pointer font-medium text-patente-primary flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📊</span>
-            <span>Comparatif avec le salaire moyen au Québec (2025)</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-500 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </summary>
-    
-        <p class="text-sm text-gray-700 mt-4" id="comparatif-dynamique" aria-live="polite"></p>
-        <ul class="list-disc pl-5 text-gray-700 text-sm mt-2">
-          <li>Hommes : 60 200 $</li>
-          <li>Femmes : 51 800 $</li>
-          <li>Tranche 30-39 ans : 58 400 $</li>
-          <li>Tech/ingénierie : 72 000 $</li>
-        </ul>
-        <p class="text-xs text-gray-500 mt-2">
-          Source :
-          <a href="https://statistique.quebec.ca/" class="underline text-patente-accent" target="_blank">Institut de la statistique du Québec</a>
-        </p>
-      </details>
-    
-      <!-- 📌 Conseils personnalisés -->
-      <details class="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm text-sm transition-all duration-300 hover:shadow-md">
-        <summary class="cursor-pointer font-medium text-gray-800 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📌</span>
-            <span>Conseils personnalisés pour gérer ton salaire</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-500 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </summary>
-    
-        <ul class="list-disc pl-5 text-gray-700 space-y-1 mt-4" id="conseils-dynamiques"></ul>
-        <p class="text-sm text-gray-500 pt-2">
-          Inspiré de <a href="https://www.reddit.com/r/QuebecFinance/" target="_blank" class="underline text-patente-accent">r/QuebecFinance</a> et du guide Budget 101 de l’AMF.
-        </p>
-      </details>
-    
-      <!-- 📊 Détail du calcul des impôts -->
-      <details class="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm text-sm transition-all duration-300 hover:shadow-md">
-        <summary class="cursor-pointer font-medium text-gray-800 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📊</span>
-            <span>Voir le détail du calcul de tes impôts</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-500 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </summary>
-    
-        <p class="text-gray-700 leading-relaxed mt-4">
-          Ton revenu est découpé en tranches, chaque tranche a son taux d’imposition. Tu ne paies le taux fort que sur la partie supérieure.
-        </p>
-    
-        <div class="space-y-6 mt-4">
-          <!-- Fédéral -->
-          <div>
-            <h4 class="font-bold text-red-700 mb-2 flex items-center gap-2">
-              <span class="text-lg">🇨🇦</span> Impôt fédéral
-            </h4>
-            <ul id="federal-brackets" class="ml-4 list-disc text-gray-700 space-y-1"></ul>
-            <p id="federal-total" class="mt-2 font-semibold text-red-700"></p>
-            <div class="mt-3 space-y-1" id="federal-bar-graph"></div>
-          </div>
-    
-          <!-- Provincial -->
-          <div>
-            <h4 class="font-bold text-blue-700 mb-2 flex items-center gap-2">
-              <span class="text-lg">⚜️</span> Impôt provincial (Québec)
-            </h4>
-            <ul id="provincial-brackets" class="ml-4 list-disc text-gray-700 space-y-1"></ul>
-            <p id="provincial-total" class="mt-2 font-semibold text-blue-700"></p>
-            <div class="mt-3 space-y-1" id="provincial-bar-graph"></div>
-          </div>
-        </div>
-    
-        <div class="border-t mt-6 pt-4 text-gray-700 text-sm">
-          💡 <strong>En résumé :</strong>
-          <span id="total-tax-rate" class="text-red-600 font-bold"></span> de ton revenu partent en impôts.
-        </div>
-      </details>
+    <div class="text-center mb-6 md:mb-8">
+      <h2 class="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+        Calculateur Salaire Net
+        <span class="block text-emerald-600" id="province-title">Québec 2025</span>
+      </h2>
+      <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" id="hero-subtitle">
+        Le calculateur le plus complet du Québec avec conseils personnalisés
+      </p>
     </div>
-    
-    <div class="pt-6 flex justify-center">
-      <button id="btn-share"
-        class="bg-gradient-to-r from-patente-primary to-patente-accent text-white px-4 py-3 rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200">
-        🔗 Partager ce résultat
+
+    <!-- Quick Presets -->
+    <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
+      <button class="preset-btn" data-salary="45000" data-type="salarie">
+        👨‍💻 Dev Junior <span class="block text-xs opacity-75">45k$</span>
       </button>
-      <span id="share-confirm" class="ml-4 text-green-600 text-sm self-center hidden">Lien copié !</span>
+      <button class="preset-btn" data-salary="75000" data-type="salarie">
+        👨‍💼 Dev Senior <span class="block text-xs opacity-75">75k$</span>
+      </button>
+      <button class="preset-btn" data-salary="95000" data-type="salarie">
+        🚀 Lead Tech <span class="block text-xs opacity-75">95k$</span>
+      </button>
+      <button class="preset-btn" data-salary="60000" data-type="freelance">
+        💼 Freelance <span class="block text-xs opacity-75">60k$</span>
+      </button>
     </div>
-    
-    
-    
-    
-    
-    
-  </div>
-</section>
 
+    <div class="grid lg:grid-cols-3 gap-6 md:gap-8">
+      
+      <!-- Main Calculator -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          
+          <!-- Calculator Header -->
+          <div class="bg-gradient-to-r from-emerald-500 to-blue-500 p-4 md:p-6 text-white">
+            <h3 class="text-xl md:text-2xl font-bold mb-2">⚡ Calcul en temps réel</h3>
+            <p class="text-emerald-100">Saisissez votre salaire pour un calcul instantané</p>
+          </div>
 
+          <div class="p-4 md:p-6">
+            
+            <!-- Main Inputs -->
+            <div class="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
+              
+              <!-- Salary Input -->
+              <div class="space-y-3">
+                <label class="block text-gray-700 font-semibold">💰 Salaire annuel brut</label>
+                <div class="relative">
+                  <input 
+                    type="number" 
+                    id="salary-input" 
+                    class="w-full p-3 md:p-4 text-lg md:text-xl font-bold border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 transition-colors"
+                    placeholder="65000"
+                    min="20000"
+                    max="500000"
+                  />
+                  <span class="absolute right-3 md:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">CAD $</span>
+                </div>
+                
+                <!-- Visual Slider -->
+                <div class="mt-3">
+                  <input 
+                    type="range" 
+                    id="salary-slider" 
+                    min="20000" 
+                    max="200000" 
+                    step="1000"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                  <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>20k$</span>
+                    <span>200k$</span>
+                  </div>
+                </div>
+              </div>
 
-<script src="/script.js" defer></script>
+              <!-- Status & Hours -->
+              <div class="space-y-3">
+                <label class="block text-gray-700 font-semibold">👤 Votre statut</label>
+                <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
+                  <button id="status-employee" class="status-btn active py-2 md:py-3 px-3 md:px-4 rounded-lg text-sm font-medium transition-all duration-200">
+                    💼 Salarié
+                  </button>
+                  <button id="status-freelance" class="status-btn py-2 md:py-3 px-3 md:px-4 rounded-lg text-sm font-medium transition-all duration-200">
+                    🚀 Freelance
+                  </button>
+                </div>
+                
+                <div>
+                  <label class="block text-gray-600 text-sm font-medium mb-2">⏰ Heures/semaine</label>
+                  <input 
+                    type="number" 
+                    id="hours-input" 
+                    value="35" 
+                    min="20" 
+                    max="60"
+                    class="w-full p-3 border border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-0"
+                  />
+                </div>
+              </div>
+            </div>
 
-<script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Dois-je cotiser à l’assurance-emploi en tant que freelance ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Non, sauf si vous adhérez volontairement au régime de l'assurance-emploi. Par défaut, les freelances n’y cotisent pas."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Le simulateur prend-il en compte mes dépenses professionnelles ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Non, ce simulateur calcule votre revenu net à partir de votre chiffre d’affaires brut, sans tenir compte de vos frais d’entreprise."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Quels taux s’appliquent aux travailleurs autonomes au Québec ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "RRQ : 18%, RQAP : 1%, AE : 0%, impôt fédéral : 14%, impôt provincial : 12%. Ces taux sont automatiquement appliqués selon le statut sélectionné."
-        }
-      }
-    ]
-  }
-  </script>
-  
+            <!-- Results Section -->
+            <div id="results-container" class="hidden space-y-6">
+              
+              <!-- Main Net Result -->
+              <div class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl p-4 md:p-6 border border-emerald-200">
+                <div class="text-center">
+                  <p class="text-gray-600 mb-2">Votre salaire net annuel</p>
+                  <div class="text-3xl md:text-4xl font-bold text-emerald-600 mb-1" id="net-annual">-</div>
+                  <p class="text-gray-500">soit <span id="net-monthly" class="font-semibold text-gray-700">-</span> par mois</p>
+                </div>
+              </div>
 
- <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Simulateur Salaire Québec",
-  "applicationCategory": "FinanceApplication",
-  "operatingSystem": "All",
-  "url": "https://salairenet.ca",
-  "description": "Calculez votre salaire net au Québec selon votre statut en 2025. Détail des déductions et conseils personnalisés."
-}
-</script>
-  
+              <!-- Accounting Style Breakdown -->
+              <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
+                <h4 class="font-bold text-gray-800 text-lg mb-4">📊 Décomposition comptable</h4>
+                
+                <div class="space-y-2 font-mono text-sm md:text-base">
+<div class="flex justify-between items-center py-2 border-b border-gray-200">
+                   <span class="text-gray-700">💰 Salaire brut annuel :</span>
+                   <span class="font-bold text-gray-900" id="breakdown-gross">-</span>
+                 </div>
+                 <div class="flex justify-between items-center py-1">
+                   <span class="text-red-600">➖ Impôt fédéral :</span>
+                   <span class="font-semibold text-red-600" id="breakdown-federal">-</span>
+                 </div>
+                 <div class="flex justify-between items-center py-1">
+                   <span class="text-blue-600" id="breakdown-provincial-label">➖ Impôt provincial (QC) :</span>
+                   <span class="font-semibold text-blue-600" id="breakdown-provincial">-</span>
+                 </div>
+                 <div class="flex justify-between items-center py-1">
+                   <span class="text-purple-600">➖ RRQ :</span>
+                   <span class="font-semibold text-purple-600" id="breakdown-rrq">-</span>
+                 </div>
+                 <div class="flex justify-between items-center py-1">
+                   <span class="text-orange-600">➖ RQAP :</span>
+                   <span class="font-semibold text-orange-600" id="breakdown-rqap">-</span>
+                 </div>
+                 <div class="flex justify-between items-center py-1" id="breakdown-ae-row">
+                   <span class="text-gray-600">➖ Assurance-emploi :</span>
+                   <span class="font-semibold text-gray-600" id="breakdown-ae">-</span>
+                 </div>
+                 
+                 <!-- Advanced deductions (hidden by default) -->
+                 <div id="advanced-breakdown" class="hidden">
+                   <div class="border-t border-gray-300 my-2 pt-2">
+                     <div class="text-xs text-gray-500 mb-2">Déductions supplémentaires :</div>
+                     <div id="advanced-deductions-list"></div>
+                   </div>
+                 </div>
+                 
+                 <div class="flex justify-between items-center py-3 border-t-2 border-gray-400 font-bold text-lg">
+                   <span class="text-emerald-700">✅ SALAIRE NET ANNUEL :</span>
+                   <span class="text-emerald-600" id="breakdown-net">-</span>
+                 </div>
+               </div>
+             </div>
 
-<section id="faq" class="max-w-3xl mx-auto px-4 py-16 text-gray-800">
-  <h2 class="text-2xl font-bold mb-4">❓ Foire aux questions</h2>
+             <!-- Time Breakdown -->
+             <div class="bg-white rounded-2xl p-4 md:p-6 border border-gray-200">
+               <h4 class="font-bold text-gray-800 text-lg mb-4">🗓️ Répartition temporelle</h4>
+               
+               <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                 <div class="text-center p-3 bg-emerald-50 rounded-lg">
+                   <div class="text-xs text-emerald-600 mb-1">Mensuel</div>
+                   <div class="font-bold text-emerald-700" id="time-monthly">-</div>
+                 </div>
+                 <div class="text-center p-3 bg-blue-50 rounded-lg">
+                   <div class="text-xs text-blue-600 mb-1">Bi-mensuel</div>
+                   <div class="font-bold text-blue-700" id="time-bimonthly">-</div>
+                 </div>
+                 <div class="text-center p-3 bg-purple-50 rounded-lg">
+                   <div class="text-xs text-purple-600 mb-1">2 semaines</div>
+                   <div class="font-bold text-purple-700" id="time-biweekly">-</div>
+                 </div>
+                 <div class="text-center p-3 bg-amber-50 rounded-lg">
+                   <div class="text-xs text-amber-600 mb-1">Semaine</div>
+                   <div class="font-bold text-amber-700" id="time-weekly">-</div>
+                 </div>
+                 <div class="text-center p-3 bg-orange-50 rounded-lg">
+                   <div class="text-xs text-orange-600 mb-1">Jour</div>
+                   <div class="font-bold text-orange-700" id="time-daily">-</div>
+                 </div>
+                 <div class="text-center p-3 bg-rose-50 rounded-lg">
+                   <div class="text-xs text-rose-600 mb-1">Heure</div>
+                   <div class="font-bold text-rose-700" id="time-hourly">-</div>
+                 </div>
+               </div>
+             </div>
 
-  <details class="mb-4">
-    <summary class="font-semibold cursor-pointer">Quel est le salaire net pour 75 000 $ brut ?</summary>
-    <p class="mt-2 text-sm text-gray-700">En 2025 au Québec, un salaire brut de 75 000 $ donne environ 48 000 $ net après impôts et déductions.</p>
-  </details>
+             <!-- Visual Progress Bar -->
+             <div class="bg-white rounded-2xl p-4 md:p-6 border border-gray-200">
+               <h4 class="font-bold text-gray-800 text-lg mb-4">📈 Répartition visuelle</h4>
+               <div class="bg-gray-100 rounded-xl overflow-hidden mb-2">
+                 <div class="flex h-8 md:h-12">
+                   <div id="bar-net" class="bg-emerald-500 flex items-center justify-center text-white text-xs md:text-sm font-medium transition-all duration-500">
+                     Net
+                   </div>
+                   <div id="bar-federal" class="bg-red-400 flex items-center justify-center text-white text-xs transition-all duration-500">
+                     Fédéral
+                   </div>
+                   <div id="bar-provincial" class="bg-blue-400 flex items-center justify-center text-white text-xs transition-all duration-500">
+                     Provincial
+                   </div>
+                   <div id="bar-rrq" class="bg-purple-400 flex items-center justify-center text-white text-xs transition-all duration-500">
+                     RRQ
+                   </div>
+                   <div id="bar-other" class="bg-gray-400 flex items-center justify-center text-white text-xs transition-all duration-500">
+                     Autres
+                   </div>
+                 </div>
+               </div>
+               <div class="text-center text-sm text-gray-600">
+                 Taux effectif : <span id="effective-rate" class="font-semibold">-</span>
+               </div>
+             </div>
 
-  <details class="mb-4">
-    <summary class="font-semibold cursor-pointer">Quelle est la différence entre salaire brut et net ?</summary>
-    <p class="mt-2 text-sm text-gray-700">Le salaire brut est ce que vous gagnez avant impôts. Le net est ce que vous touchez après toutes les déductions (impôts, RRQ, AE, etc.).</p>
-  </details>
+             <!-- Advanced Options Toggle -->
+             <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 md:p-6 border border-amber-200">
+               <button id="toggle-advanced" class="w-full flex items-center justify-between text-left">
+                 <div>
+                   <h4 class="font-bold text-amber-800 text-lg">⚙️ Options avancées</h4>
+                   <p class="text-amber-700 text-sm">Ajoutez vos déductions spécifiques pour un calcul ultra-précis</p>
+                 </div>
+                 <svg id="advanced-chevron" class="w-6 h-6 text-amber-600 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                 </svg>
+               </button>
+               
+               <!-- Advanced Deductions Panel -->
+               <div id="advanced-panel" class="hidden mt-4 space-y-4">
+                 <div class="grid md:grid-cols-2 gap-4" id="advanced-deductions">
+                   <!-- Dynamic advanced deductions will be inserted here -->
+                 </div>
+                 
+                 <div class="pt-4 border-t border-amber-200">
+                   <div class="flex justify-between items-center">
+                     <span class="font-semibold text-amber-800">Déductions supplémentaires mensuelles :</span>
+                     <span class="font-bold text-amber-600" id="total-advanced-monthly">0 $</span>
+                   </div>
+                   <div class="flex justify-between items-center mt-1">
+                     <span class="font-semibold text-amber-800">Nouveau salaire net final :</span>
+                     <span class="font-bold text-emerald-600" id="final-net-result">-</span>
+                   </div>
+                 </div>
+               </div>
+             </div>
 
-  <details class="mb-4">
-    <summary class="font-semibold cursor-pointer">Combien d’impôts sont déduits au Québec en 2025 ?</summary>
-    <p class="mt-2 text-sm text-gray-700">En moyenne, les salariés perdent entre 30 % et 40 % de leur brut annuel en impôts et cotisations sociales.</p>
-  </details>
+             <!-- Share Button -->
+             <div class="text-center">
+               <button id="share-result" class="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                 📤 Partager ce résultat
+               </button>
+               <div id="share-confirmation" class="hidden mt-2 text-green-600 text-sm font-medium">
+                 ✅ Lien copié dans le presse-papier !
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
 
-  <details class="mb-4">
-    <summary class="font-semibold cursor-pointer">Puis-je utiliser ce simulateur si je suis travailleur autonome ?</summary>
-    <p class="mt-2 text-sm text-gray-700">Oui ! Le simulateur tient compte de votre statut et applique les bons taux de déductions.</p>
-  </details>
+     <!-- Right Sidebar -->
+     <div class="space-y-4 md:space-y-6">
+       
+       <!-- Social Comparison -->
+       <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-6">
+         <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+           <span class="mr-2">🎯</span> Votre position sociale
+         </h3>
+         <div id="social-comparison" class="space-y-3 text-sm">
+           <p class="text-gray-600">Saisissez votre salaire pour voir votre position</p>
+         </div>
+       </div>
 
-  <details class="mb-4">
-    <summary class="font-semibold cursor-pointer">Est-ce à jour pour l’année 2025 ?</summary>
-    <p class="mt-2 text-sm text-gray-700">Oui, les taux de cotisation et les barèmes d’imposition sont mis à jour pour l’année fiscale 2025 au Québec.</p>
-  </details>
-</section>
+       <!-- Financial Recommendations -->
+       <div class="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg border border-emerald-200 p-4 md:p-6">
+         <h3 class="font-bold text-emerald-800 mb-4 flex items-center">
+           <span class="mr-2">💡</span> Conseils personnalisés
+         </h3>
+         <div id="financial-tips" class="space-y-3 text-sm">
+           <p class="text-emerald-700">Des conseils adaptés à votre situation apparaîtront ici</p>
+         </div>
+       </div>
 
-<section id="faq-freelance" class="max-w-3xl mx-auto px-4 py-10 text-gray-800 hidden">
-  <h3 class="text-xl font-semibold mb-3">🙋‍♂️ FAQ spécifique aux freelances</h3>
+       <!-- Housing Budget -->
+       <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-lg border border-blue-200 p-4 md:p-6">
+         <h3 class="font-bold text-blue-800 mb-4 flex items-center">
+           <span class="mr-2">🏠</span> Budget logement
+         </h3>
+         <div id="housing-recommendations" class="space-y-3 text-sm">
+           <p class="text-blue-700">Recommandations après calcul de votre salaire</p>
+         </div>
+       </div>
+     </div>
+   </div>
+ </section>
 
-  <details class="mb-3">
-    <summary class="font-semibold cursor-pointer">Dois-je cotiser à l’assurance-emploi en tant qu’autonome ?</summary>
-    <p class="mt-2 text-sm text-gray-700">Non. Les travailleurs autonomes ne cotisent pas à l’assurance-emploi sauf s’ils adhèrent volontairement au régime.</p>
-  </details>
+ <!-- Province Comparison Section -->
+ <section id="province-comparison" class="max-w-7xl mx-auto px-4 py-6 md:py-8 hidden">
+   <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
+     <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">🗺️ Comparaison Québec vs Ontario</h3>
+     <div class="grid md:grid-cols-2 gap-6 md:gap-8" id="comparison-grid">
+       <!-- Dynamic comparison content -->
+     </div>
+   </div>
+ </section>
 
-  <details class="mb-3">
-    <summary class="font-semibold cursor-pointer">Quels sont les taux de déductions pour un freelance en 2025 ?</summary>
-    <p class="mt-2 text-sm text-gray-700">Le simulateur applique automatiquement les bons taux : RRQ 18%, RQAP 1%, impôt fédéral 14%, provincial 12%.</p>
-  </details>
+ <!-- Dynamic FAQ Section -->
+ <section class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+   <div id="dynamic-faq-section" class="hidden">
+     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
+       <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2 text-center">❓ Questions personnalisées</h3>
+       <p class="text-gray-600 text-center mb-6 md:mb-8">Réponses adaptées à votre situation financière</p>
+       
+       <div class="grid md:grid-cols-2 gap-4 md:gap-6" id="dynamic-faq">
+         <!-- Dynamic FAQ items will be inserted here -->
+       </div>
+     </div>
+   </div>
+ </section>
+</main>
 
-  <details class="mb-3">
-    <summary class="font-semibold cursor-pointer">Le simulateur prend-il en compte mes dépenses pro ?</summary>
-    <p class="mt-2 text-sm text-gray-700">Non. Le calcul est basé sur votre chiffre d’affaires brut. Vous devez déduire manuellement vos dépenses d’entreprise.</p>
-  </details>
-</section>
+<!-- Enhanced CSS -->
+<style>
+ /* Slider customization */
+ .slider::-webkit-slider-thumb {
+   appearance: none;
+   width: 24px;
+   height: 24px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #10b981, #3b82f6);
+   cursor: pointer;
+   border: 3px solid white;
+   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+ }
 
+ .slider::-moz-range-thumb {
+   width: 24px;
+   height: 24px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #10b981, #3b82f6);
+   cursor: pointer;
+   border: 3px solid white;
+   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+ }
+
+ /* Toggle styles */
+ .province-toggle.active {
+   background: linear-gradient(135deg, #10b981, #3b82f6);
+   color: white;
+   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+ }
+
+ .province-toggle:not(.active) {
+   color: #6b7280;
+ }
+
+ .status-btn.active {
+   background: linear-gradient(135deg, #10b981, #3b82f6);
+   color: white;
+   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+ }
+
+ .status-btn:not(.active) {
+   color: #6b7280;
+   background: transparent;
+ }
+
+ /* Preset buttons */
+ .preset-btn {
+   @apply bg-white hover:bg-emerald-50 border border-emerald-200 hover:border-emerald-300 rounded-xl px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium text-emerald-700 transition-all duration-200 hover:shadow-md;
+ }
+
+ .preset-btn:hover {
+   transform: translateY(-1px);
+ }
+
+ /* Advanced panel animation */
+ #advanced-panel {
+   max-height: 0;
+   overflow: hidden;
+   transition: max-height 0.3s ease-out;
+ }
+
+ #advanced-panel:not(.hidden) {
+   max-height: 1000px;
+ }
+
+ /* FAQ item styles */
+ .faq-item {
+   @apply bg-gray-50 rounded-xl p-4 md:p-6 border border-gray-200 hover:shadow-md transition-all duration-300;
+ }
+
+ .faq-question {
+   @apply font-semibold text-gray-800 mb-2 md:mb-3 text-sm md:text-base;
+ }
+
+ .faq-answer {
+   @apply text-gray-700 text-sm leading-relaxed;
+ }
+
+ /* Responsive adjustments */
+ @media (max-width: 768px) {
+   .grid {
+     gap: 1rem;
+   }
+   
+   .text-3xl {
+     font-size: 1.875rem;
+   }
+   
+   .text-5xl {
+     font-size: 2.25rem;
+   }
+ }
+
+ /* Animation classes */
+ .animate-slide-in {
+   animation: slideInUp 0.3s ease-out;
+ }
+
+ @keyframes slideInUp {
+   from {
+     opacity: 0;
+     transform: translateY(20px);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0);
+   }
+ }
+</style>
+
+<!-- Main Enhanced Calculator Script -->
+<script type="module" src="/enhanced-calculator-main.js"></script>
 
 </Base>

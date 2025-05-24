@@ -1,0 +1,65 @@
+//src\data\advancedDeductions.json
+{
+  "commonDeductions": [
+    {
+      "id": "pension_plan",
+      "name": "Régime de retraite employeur",
+      "type": "percentage",
+      "defaultValue": 5,
+      "min": 0,
+      "max": 10,
+      "description": "Cotisation au régime de retraite de l'entreprise",
+      "emoji": "🏦"
+    },
+    {
+      "id": "union_dues",
+      "name": "Cotisations syndicales",
+      "type": "fixed",
+      "defaultValue": 50,
+      "min": 0,
+      "max": 200,
+      "description": "Frais mensuels de syndicalisation",
+      "emoji": "🤝"
+    },
+    {
+      "id": "health_insurance",
+      "name": "Assurance médicaments/dentaire",
+      "type": "fixed",
+      "defaultValue": 75,
+      "min": 0,
+      "max": 300,
+      "description": "Assurances complémentaires",
+      "emoji": "🦷"
+    },
+    {
+      "id": "life_insurance",
+      "name": "Assurance vie/invalidité",
+      "type": "fixed",
+      "defaultValue": 25,
+      "min": 0,
+      "max": 150,
+      "description": "Protection en cas d'incapacité",
+      "emoji": "🛡️"
+    },
+    {
+      "id": "parking",
+      "name": "Stationnement",
+      "type": "fixed",
+      "defaultValue": 60,
+      "min": 0,
+      "max": 200,
+      "description": "Frais de stationnement au bureau",
+      "emoji": "🅿️"
+    },
+    {
+      "id": "transport",
+      "name": "Transport en commun",
+      "type": "fixed",
+      "defaultValue": 95,
+      "min": 0,
+      "max": 200,
+      "description": "Pass de transport mensuel",
+      "emoji": "🚇"
+    }
+  ]
+}
