@@ -271,26 +271,104 @@ import advancedDeductions from '../data/advancedDeductions.json';
   .preset-btn {
     @apply bg-white hover:bg-emerald-50 border border-emerald-200 hover:border-emerald-300 rounded-xl px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium text-emerald-700 transition-all duration-200 hover:shadow-md;
   }
+
+  @keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+.shadow-3xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(16, 185, 129, 0.3);
+}
 </style>
 
 <script define:vars={{ salaryData, financialTips, advancedDeductions }}>
 console.log('🚀 Script chargé !', { salaryData, financialTips, advancedDeductions });
 
-// 🆕 RECREER LA FONCTION CALCUL CÔTÉ CLIENT
-function calculerSalaireNet(salaire, statut = 'salarie') {
-  console.log('🔢 Calcul côté client:', salaire, statut);
+// URL Management utilities
+class UrlManager {
+  static parseUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      salaire: parseInt(params.get('salaire')) || 0,
+      statut: params.get('statut') || 'salarie',
+      province: params.get('province') || 'QC'
+    };
+  }
+
+  static updateUrl(params) {
+    const url = new URL(window.location);
+    if (params.salaire > 0) {
+      url.searchParams.set('salaire', params.salaire);
+      url.searchParams.set('statut', params.statut);
+      url.searchParams.set('province', params.province);
+    } else {
+      url.searchParams.delete('salaire');
+      url.searchParams.delete('statut');
+      url.searchParams.delete('province');
+    }
+    window.history.replaceState({}, '', url);
+  }
+
+  static generateShareUrl(params) {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/?salaire=${params.salaire}&statut=${params.statut}&province=${params.province}`;
+  }
+}
+
+// Time calculator utility
+class TimeCalculator {
+  static calculateWorkingDays(netSalary, grossSalary, province) {
+    const totalTax = grossSalary - netSalary;
+    const taxRate = totalTax / grossSalary;
+    
+    const workingDaysPerYear = 250;
+    const taxDays = Math.round(workingDaysPerYear * taxRate);
+    
+    const startDate = new Date(new Date().getFullYear(), 0, 1);
+    const taxEndDate = new Date(startDate);
+    taxEndDate.setDate(startDate.getDate() + taxDays);
+    
+    return {
+      taxDays: taxDays,
+      taxEndDate: taxEndDate,
+      taxRate: taxRate
+    };
+  }
+}
+
+// Updated salary calculator function with province support
+function calculerSalaireNet(salaire, statut = 'salarie', province = 'QC') {
+  console.log('🔢 Calcul côté client:', salaire, statut, province);
   
   const isFreelance = statut === 'freelance';
   
-  // RRQ
-  const rrqRate = isFreelance ? 0.128 : 0.064;
-  const rrq = Math.min(Math.max(0, salaire - 3500), 71200 - 3500) * rrqRate;
+  // RRQ/CPP - Different for QC vs ON
+  const pensionRate = isFreelance ? 0.128 : 0.064;
+  let pension;
   
-  // RQAP & AE
-  const rqap = Math.min(salaire, 98000) * (isFreelance ? 0.00878 : 0.00494);
-  const ae = isFreelance ? 0 : Math.min(salaire, 65700) * 0.0131;
+  if (province === 'QC') {
+    pension = Math.min(Math.max(0, salaire - 3500), 71200 - 3500) * pensionRate;
+  } else {
+    pension = Math.min(Math.max(0, salaire - 3500), 71300 - 3500) * pensionRate;
+  }
 
-  // Impôt fédéral
+  // RQAP (Quebec only) vs EI
+  let rqap = 0;
+  let ae = 0;
+  
+  if (province === 'QC') {
+    rqap = Math.min(salaire, 98000) * (isFreelance ? 0.00878 : 0.00494);
+    ae = isFreelance ? 0 : Math.min(salaire, 65700) * 0.0131;
+  } else {
+    ae = isFreelance ? 0 : Math.min(salaire, 65700) * 0.0131;
+  }
+
+  // Federal tax (same for both)
   const fed = calculerPalier(salaire, [
     { limit: 57375, rate: 0.15 },
     { limit: 114750, rate: 0.205 },
@@ -299,23 +377,34 @@ function calculerSalaireNet(salaire, statut = 'salarie') {
     { limit: Infinity, rate: 0.33 }
   ]);
 
-  // Impôt provincial
-  const prov = calculerPalier(salaire, [
-    { limit: 53255, rate: 0.14 },
-    { limit: 106495, rate: 0.19 },
-    { limit: 129590, rate: 0.24 },
-    { limit: Infinity, rate: 0.2575 }
-  ]);
+  // Provincial tax - DIFFERENT RATES
+  const provincialRates = {
+    QC: [
+      { limit: 53255, rate: 0.14 },
+      { limit: 106495, rate: 0.19 },
+      { limit: 129590, rate: 0.24 },
+      { limit: Infinity, rate: 0.2575 }
+    ],
+    ON: [
+      { limit: 54183, rate: 0.0505 },
+      { limit: 108367, rate: 0.0915 },
+      { limit: 150000, rate: 0.1116 },
+      { limit: 220000, rate: 0.1216 },
+      { limit: Infinity, rate: 0.1316 }
+    ]
+  };
 
-  const total = rrq + rqap + ae + fed + prov;
+  const prov = calculerPalier(salaire, provincialRates[province]);
+  const total = pension + rqap + ae + fed + prov;
   
   return {
     net: Math.round(salaire - total),
-    rrq: Math.round(rrq),
+    pension: Math.round(pension),
     rqap: Math.round(rqap),
     ae: Math.round(ae),
     fed: Math.round(fed),
-    prov: Math.round(prov)
+    prov: Math.round(prov),
+    province: province
   };
 }
 
@@ -338,27 +427,52 @@ class SalaryCalculator {
     this.currentSalary = 0;
     console.log('✅ Calculator initialisé');
     this.initEventListeners();
+    this.loadFromUrl();
+  }
+
+  loadFromUrl() {
+    const params = UrlManager.parseUrlParams();
+    console.log('🔍 Paramètres URL:', params);
     
-    // Test avec 65000$ au démarrage
-    setTimeout(() => {
-      this.calculateSalary(65000);
-      document.getElementById('salary-input').value = 65000;
-      document.getElementById('salary-slider').value = 65000;
-    }, 500);
+    if (params.salaire > 0) {
+      console.log('📂 Chargement depuis URL:', params);
+      
+      // Set form values
+      const salaryInput = document.getElementById('salary-input');
+      const salarySlider = document.getElementById('salary-slider');
+      
+      if (salaryInput) salaryInput.value = params.salaire;
+      if (salarySlider) salarySlider.value = params.salaire;
+      
+      // Set status and province
+      this.switchStatus(params.statut);
+      this.switchProvince(params.province);
+      
+      // Calculate
+      setTimeout(() => {
+        this.calculateSalary(params.salaire);
+      }, 100);
+    } else {
+      // Default calculation
+      setTimeout(() => {
+        this.calculateSalary(65000);
+        const salaryInput = document.getElementById('salary-input');
+        const salarySlider = document.getElementById('salary-slider');
+        if (salaryInput) salaryInput.value = 65000;
+        if (salarySlider) salarySlider.value = 65000;
+      }, 500);
+    }
   }
 
   initEventListeners() {
     console.log('🔗 Ajout des event listeners...');
     
-    // Province toggles
     document.getElementById('toggle-qc')?.addEventListener('click', () => this.switchProvince('QC'));
     document.getElementById('toggle-on')?.addEventListener('click', () => this.switchProvince('ON'));
 
-    // Status toggles  
     document.getElementById('status-employee')?.addEventListener('click', () => this.switchStatus('salarie'));
     document.getElementById('status-freelance')?.addEventListener('click', () => this.switchStatus('freelance'));
 
-    // Salary inputs
     const salaryInput = document.getElementById('salary-input');
     const salarySlider = document.getElementById('salary-slider');
     
@@ -366,15 +480,16 @@ class SalaryCalculator {
       const value = parseFloat(e.target.value) || 0;
       if (salarySlider) salarySlider.value = Math.min(value, 200000);
       this.calculateSalary(value);
+      this.updateUrl();
     });
     
     salarySlider?.addEventListener('input', (e) => {
       const value = parseFloat(e.target.value);
       if (salaryInput) salaryInput.value = value;
       this.calculateSalary(value);
+      this.updateUrl();
     });
 
-    // Preset buttons
     document.querySelectorAll('.preset-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const salary = parseInt(btn.dataset.salary);
@@ -385,8 +500,155 @@ class SalaryCalculator {
         if (salarySlider) salarySlider.value = salary;
         this.switchStatus(type);
         this.calculateSalary(salary);
+        this.updateUrl();
       });
     });
+
+    // 🆕 Ajout du bouton de partage après le chargement du DOM
+    setTimeout(() => {
+      this.addShareButton();
+    }, 1000);
+  }
+addShareButton() {
+  if (document.getElementById('share-btn')) return;
+  
+  const resultsContainer = document.getElementById('results-container');
+  if (resultsContainer) {
+    const shareContainer = document.createElement('div');
+    shareContainer.className = 'mt-6 p-6 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 rounded-2xl border-2 border-dashed border-emerald-200 relative overflow-hidden';
+    
+    shareContainer.innerHTML = `
+      <!-- Animated background particles -->
+      <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-2 left-4 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
+        <div class="absolute top-6 right-8 w-1 h-1 bg-blue-400 rounded-full animate-pulse"></div>
+        <div class="absolute bottom-4 left-12 w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"></div>
+      </div>
+      
+      <div class="text-center space-y-4 relative">
+        <div class="space-y-1">
+          <div class="text-lg font-bold text-gray-800 flex items-center justify-center space-x-2">
+            <span class="animate-bounce">🎉</span>
+            <span>Ton résultat est prêt !</span>
+            <span class="animate-bounce" style="animation-delay: 0.1s;">🎉</span>
+          </div>
+          <div class="text-sm text-gray-600">
+            Impressionne tes collègues avec ce calcul précis
+          </div>
+        </div>
+        
+        <button id="share-btn" class="group relative bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-500 w-full max-w-sm mx-auto overflow-hidden">
+          
+          <!-- Shimmer effect -->
+          <div class="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer"></div>
+          
+          <div class="relative flex items-center justify-center space-x-3">
+            <span class="text-2xl transform group-hover:rotate-12 transition-transform duration-300">🚀</span>
+            <div class="text-center">
+              <div class="text-lg font-black">PARTAGER</div>
+              <div class="text-xs opacity-90 font-medium">Génère ton lien perso</div>
+            </div>
+            <span class="text-2xl transform group-hover:-rotate-12 transition-transform duration-300">💫</span>
+          </div>
+        </button>
+        
+        <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+          <div class="flex items-center space-x-1">
+            <span>⚡</span>
+            <span>Copie instantanée</span>
+          </div>
+          <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+          <div class="flex items-center space-x-1">
+            <span>🔒</span>
+            <span>Sécurisé</span>
+          </div>
+          <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+          <div class="flex items-center space-x-1">
+            <span>🎯</span>
+            <span>URL unique</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    const breakdown = resultsContainer.querySelector('.space-y-6');
+    if (breakdown) {
+      breakdown.appendChild(shareContainer);
+    }
+    
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => this.shareResult());
+    }
+  }
+}
+
+  shareResult() {
+  const shareUrl = UrlManager.generateShareUrl({
+    salaire: this.currentSalary,
+    statut: this.currentStatus,
+    province: this.currentProvince
+  });
+
+  const result = calculerSalaireNet(this.currentSalary, this.currentStatus, this.currentProvince);
+  const netSalary = this.formatCurrency(result.net);
+  const statusLabel = this.currentStatus === 'freelance' ? 'freelance' : 'salarié';
+  const provinceLabel = this.currentProvince === 'QC' ? 'Québec' : 'Ontario';
+
+  console.log('🔗 URL de partage:', shareUrl);
+
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    const btn = document.getElementById('share-btn');
+    if (btn) {
+      const originalHTML = btn.innerHTML;
+      
+      // Animation de succès ultra-satisfaisante
+      btn.innerHTML = `
+        <div class="relative flex items-center justify-center space-x-3">
+          <span class="text-2xl animate-bounce">✅</span>
+          <div class="text-center">
+            <div class="text-lg font-black">LIEN COPIÉ !</div>
+            <div class="text-xs opacity-90 font-medium">Prêt à impressionner</div>
+          </div>
+          <span class="text-2xl animate-spin">🎉</span>
+        </div>
+      `;
+      
+      btn.classList.remove('from-emerald-500', 'via-blue-500', 'to-purple-500');
+      btn.classList.add('from-green-500', 'via-emerald-500', 'to-green-600');
+      
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('from-green-500', 'via-emerald-500', 'to-green-600');
+        btn.classList.add('from-emerald-500', 'via-blue-500', 'to-purple-500');
+      }, 3000);
+    }
+  }).catch(() => {
+    // Fallback avec message viral optimisé
+    const message = `🎯 ${netSalary} net/an comme ${statusLabel} au ${provinceLabel} !\n\n✨ Calcule ton salaire ici : ${shareUrl}`;
+    
+    // Essai de partage natif mobile d'abord
+    if (navigator.share) {
+      navigator.share({
+        title: `💰 Mon salaire net : ${netSalary}/an !`,
+        text: `Découvre combien tu gagnes vraiment avec ce calculateur québécois`,
+        url: shareUrl
+      });
+    } else {
+      alert(message);
+    }
+  });
+}
+
+  updateUrl() {
+    if (this.currentSalary > 0) {
+      UrlManager.updateUrl({
+        salaire: this.currentSalary,
+        statut: this.currentStatus,
+        province: this.currentProvince
+      });
+      console.log('🔄 URL mise à jour:', window.location.href);
+    }
   }
 
   switchProvince(province) {
@@ -394,18 +656,24 @@ class SalaryCalculator {
     this.currentProvince = province;
     
     document.querySelectorAll('.province-toggle').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`toggle-${province.toLowerCase()}`).classList.add('active');
+    const toggleBtn = document.getElementById(`toggle-${province.toLowerCase()}`);
+    if (toggleBtn) toggleBtn.classList.add('active');
     
-    // Update labels
     const labels = {
       QC: { title: 'Québec 2025', provincial: '➖ Impôt Québec :' },
       ON: { title: 'Ontario 2025', provincial: '➖ Impôt Ontario :' }
     };
     
-    document.getElementById('province-title').textContent = labels[province].title;
-    document.getElementById('breakdown-provincial-label').textContent = labels[province].provincial;
+    const titleEl = document.getElementById('province-title');
+    const labelEl = document.getElementById('breakdown-provincial-label');
     
-    this.calculateSalary(this.currentSalary);
+    if (titleEl) titleEl.textContent = labels[province].title;
+    if (labelEl) labelEl.textContent = labels[province].provincial;
+    
+    if (this.currentSalary > 0) {
+      this.calculateSalary(this.currentSalary);
+      this.updateUrl();
+    }
   }
 
   switchStatus(status) {
@@ -414,305 +682,413 @@ class SalaryCalculator {
     
     document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
     const targetBtn = status === 'salarie' ? 'status-employee' : 'status-freelance';
-    document.getElementById(targetBtn).classList.add('active');
+    const statusBtn = document.getElementById(targetBtn);
+    if (statusBtn) statusBtn.classList.add('active');
     
-    this.calculateSalary(this.currentSalary);
+    if (this.currentSalary > 0) {
+      this.calculateSalary(this.currentSalary);
+      this.updateUrl();
+    }
   }
 
   calculateSalary(grossSalary) {
     if (!grossSalary || grossSalary <= 0) {
       console.log('❌ Pas de salaire à calculer');
-      document.getElementById('results-container').classList.add('hidden');
+      const container = document.getElementById('results-container');
+      if (container) container.classList.add('hidden');
       return;
     }
 
-    console.log('🔢 Calcul pour:', grossSalary, this.currentStatus);
+    console.log('🔢 Calcul pour:', grossSalary, this.currentStatus, this.currentProvince);
     this.currentSalary = grossSalary;
     
-    // ✅ MAINTENANT ÇA VA MARCHER !
-    const result = calculerSalaireNet(grossSalary, this.currentStatus);
+    const result = calculerSalaireNet(grossSalary, this.currentStatus, this.currentProvince);
     console.log('📊 Résultat:', result);
     
-    // Show results
     const container = document.getElementById('results-container');
     if (container) {
       container.classList.remove('hidden');
-      this.updateResults(result);
-      this.updateTimeBreakdown(result.net);
+      this.updateResults(result, grossSalary);
+      this.updateTimeBreakdown(result.net, grossSalary);
       this.updateSocialComparison(result.net);
       this.updateFinancialTips(result.net);
+      
+      // Add share button if not already present
+      setTimeout(() => this.addShareButton(), 100);
     }
   }
 
-  updateResults(result) {
+  updateResults(result, grossSalary) {
     console.log('📝 Mise à jour des résultats:', result);
     
-    const formatCurrency = (amount) => 
-      new Intl.NumberFormat('fr-CA', { 
-        style: 'currency', 
-        currency: 'CAD',
-        maximumFractionDigits: 0 
-      }).format(amount);
-
     // Main results
-    document.getElementById('net-annual').textContent = formatCurrency(result.net);
-    document.getElementById('net-monthly').textContent = formatCurrency(result.net / 12);
+    const netAnnualEl = document.getElementById('net-annual');
+    const netMonthlyEl = document.getElementById('net-monthly');
+    
+    if (netAnnualEl) netAnnualEl.textContent = this.formatCurrency(result.net);
+    if (netMonthlyEl) netMonthlyEl.textContent = this.formatCurrency(result.net / 12);
 
     // Breakdown
-    document.getElementById('breakdown-gross').textContent = formatCurrency(this.currentSalary);
-    document.getElementById('breakdown-federal').textContent = `-${formatCurrency(result.fed)}`;
-    document.getElementById('breakdown-provincial').textContent = `-${formatCurrency(result.prov)}`;
-    document.getElementById('breakdown-rrq').textContent = `-${formatCurrency(result.rrq)}`;
-    document.getElementById('breakdown-rqap').textContent = `-${formatCurrency(result.rqap)}`;
-    document.getElementById('breakdown-ae').textContent = `-${formatCurrency(result.ae)}`;
-    document.getElementById('breakdown-net').textContent = formatCurrency(result.net);
+    const elements = {
+      'breakdown-gross': grossSalary,
+      'breakdown-federal': `-${result.fed}`,
+      'breakdown-provincial': `-${result.prov}`,
+      'breakdown-rrq': `-${result.pension}`,
+      'breakdown-rqap': `-${result.rqap}`,
+      'breakdown-ae': `-${result.ae}`,
+      'breakdown-net': result.net
+    };
 
-    // Hide AE for freelancers
+    Object.entries(elements).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (typeof value === 'string' && value.startsWith('-')) {
+          el.textContent = value.replace('-', `-${this.formatCurrency(Math.abs(parseFloat(value)))}`);
+        } else {
+          el.textContent = this.formatCurrency(value);
+        }
+      }
+    });
+
+    // Show/hide AE row for freelancers
     const aeRow = document.getElementById('breakdown-ae-row');
-    if (this.currentStatus === 'freelance') {
-      aeRow.classList.add('hidden');
-    } else {
-      aeRow.classList.remove('hidden');
+    if (aeRow) {
+      if (this.currentStatus === 'freelance') {
+        aeRow.classList.add('hidden');
+      } else {
+        aeRow.classList.remove('hidden');
+      }
     }
+
+    this.showProvinceComparison(grossSalary);
   }
 
-  updateTimeBreakdown(netAnnual) {
-    const formatCurrency = (amount) => 
-      new Intl.NumberFormat('fr-CA', { 
-        style: 'currency', 
-        currency: 'CAD',
-        maximumFractionDigits: 0 
-      }).format(amount);
+  showProvinceComparison(grossSalary) {
+    const qcResult = calculerSalaireNet(grossSalary, this.currentStatus, 'QC');
+    const onResult = calculerSalaireNet(grossSalary, this.currentStatus, 'ON');
+    
+    const difference = onResult.net - qcResult.net;
+    const betterProvince = difference > 0 ? 'Ontario' : 'Québec';
+    const amount = Math.abs(difference);
+    
+    let comparisonDiv = document.getElementById('province-comparison');
+    if (!comparisonDiv) {
+      comparisonDiv = document.createElement('div');
+      comparisonDiv.id = 'province-comparison';
+      comparisonDiv.className = 'mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-200';
+      
+      const resultsContainer = document.getElementById('results-container');
+      const spaceDiv = resultsContainer?.querySelector('.space-y-6');
+      if (spaceDiv) {
+        spaceDiv.appendChild(comparisonDiv);
+      }
+    }
+    
+    comparisonDiv.innerHTML = `
+      <h4 class="font-bold text-gray-800 mb-3">🍁 vs 🏢 Comparaison provinciale</h4>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="text-center p-3 bg-blue-100 rounded-lg">
+          <div class="font-semibold text-blue-800">Québec</div>
+          <div class="text-lg font-bold text-blue-600">${this.formatCurrency(qcResult.net)}</div>
+          <div class="text-xs text-blue-600">net/année</div>
+        </div>
+        <div class="text-center p-3 bg-orange-100 rounded-lg">
+          <div class="font-semibold text-orange-800">Ontario</div>
+          <div class="text-lg font-bold text-orange-600">${this.formatCurrency(onResult.net)}</div>
+          <div class="text-xs text-orange-600">net/année</div>
+        </div>
+      </div>
+      <div class="text-center mt-3 p-2 bg-white rounded-lg">
+        <div class="font-semibold text-gray-800">
+          ${betterProvince} gagnant : <span class="text-green-600">+${this.formatCurrency(amount)}</span>
+        </div>
+        <div class="text-xs text-gray-600 mt-1">
+          ${difference > 0 ? 'Ontario a des impôts plus bas' : 'Québec reste avantageux'}
+        </div>
+      </div>
+    `;
+  }
 
+  updateTimeBreakdown(netAnnual, grossAnnual) {
+    console.log('⏰ Mise à jour time breakdown');
+    
     const monthly = netAnnual / 12;
     const bimonthly = monthly / 2;
     const weekly = netAnnual / 52;
 
-    document.getElementById('time-monthly').textContent = formatCurrency(monthly);
-    document.getElementById('time-bimonthly').textContent = formatCurrency(bimonthly);
-    document.getElementById('time-weekly').textContent = formatCurrency(weekly);
+    const timeElements = {
+      'time-monthly': monthly,
+      'time-bimonthly': bimonthly,
+      'time-weekly': weekly
+    };
+
+    Object.entries(timeElements).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = this.formatCurrency(value);
+    });
+
+    this.addTaxTimeCalculator(netAnnual, grossAnnual);
   }
 
-// 🆕 POSITION SOCIALE CORRIGÉE
-updateSocialComparison(netSalary) {
-  const container = document.getElementById('social-comparison');
-  
-  // Convertir le net en brut approximatif pour comparaison
-  const approximateGross = Math.round(netSalary / 0.68); // Assume ~32% déductions
-  
-  console.log('🎯 Comparaison:', { netSalary, approximateGross });
-  
-  // Trouver des jobs similaires au BRUT approximatif
-  const similarJobs = salaryData.jobComparisons
-    .filter(job => Math.abs(job.salary - approximateGross) < 25000)
-    .sort((a, b) => Math.abs(a.salary - approximateGross) - Math.abs(b.salary - approximateGross))
-    .slice(0, 3);
+  addTaxTimeCalculator(netAnnual, grossAnnual) {
+    const timeInfo = TimeCalculator.calculateWorkingDays(netAnnual, grossAnnual, this.currentProvince);
+    
+    let timeDiv = document.getElementById('tax-time-calculator');
+    if (!timeDiv) {
+      timeDiv = document.createElement('div');
+      timeDiv.id = 'tax-time-calculator';
+      timeDiv.className = 'mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200';
+      
+      // ✅ SÉLECTEUR CORRIGÉ - Trouve le container du time breakdown
+      const timeContainer = document.querySelector('#results-container .bg-white.rounded-2xl.p-4');
+      if (timeContainer) {
+        timeContainer.appendChild(timeDiv);
+      }
+    }
 
-  // Trouver le percentile basé sur le brut approximatif
-  const percentile = salaryData.percentileRanges.find(range => 
-    approximateGross >= range.minSalary && approximateGross < range.maxSalary
-  );
+    const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    
+    const taxEndMonth = monthNames[timeInfo.taxEndDate.getMonth()];
+    const taxEndDay = timeInfo.taxEndDate.getDate();
 
-  // Calculer la position relative
-  let betterThan = 50; // Default
-  if (approximateGross < 35000) betterThan = 15;
-  else if (approximateGross < 50000) betterThan = 35;
-  else if (approximateGross < 65000) betterThan = 55;
-  else if (approximateGross < 80000) betterThan = 75;
-  else if (approximateGross < 100000) betterThan = 85;
-  else betterThan = 90;
-
-  const html = `
-    <div class="space-y-3">
-      <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-        <div class="text-sm font-medium text-emerald-700">Votre position :</div>
-        <div class="font-bold text-emerald-600">${percentile?.percentile || 'Top 10%'}</div>
-        <div class="text-xs text-emerald-600 mt-1">
-          Mieux que <strong>${betterThan}%</strong> des Québécois
+    timeDiv.innerHTML = `
+      <h4 class="font-bold text-amber-800 mb-3">⏰ Calculateur de temps fiscal</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="text-center p-3 bg-amber-100 rounded-lg">
+          <div class="font-semibold text-amber-800">Tu travailles pour les impots:</div>
+          <div class="text-2xl font-bold text-amber-600">${timeInfo.taxDays}</div>
+          <div class="text-xs text-amber-600">jours/année</div>
+        </div>
+        <div class="text-center p-3 bg-orange-100 rounded-lg">
+          <div class="font-semibold text-orange-800">Libre d'impôts à partir du</div>
+          <div class="text-lg font-bold text-orange-600">${taxEndDay} ${taxEndMonth}</div>
+          <div class="text-xs text-orange-600">Date approximative</div>
         </div>
       </div>
-      
-      ${similarJobs.length > 0 ? `
-        <div class="space-y-2">
-          <div class="text-xs font-medium text-gray-700">Salaires similaires (brut) :</div>
-          ${similarJobs.map(job => `
-            <div class="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
-              <span class="flex items-center">
-                <span class="mr-2">${job.emoji}</span>
-                <span>${job.title}</span>
-              </span>
-              <span class="font-medium text-gray-700">${this.formatCurrency(job.salary)}</span>
+      <div class="text-center mt-3 p-2 bg-white rounded-lg">
+        <div class="text-sm text-gray-700">
+          🏢 Tu travailles <strong>${(timeInfo.taxRate * 100).toFixed(1)}%</strong> de ton temps pour les gouvernements
+        </div>
+        <div class="text-xs text-gray-600 mt-1">
+          Soit environ <strong>${Math.round(timeInfo.taxRate * 8)} heures par jour</strong> de travail
+        </div>
+      </div>
+    `;
+  }
+
+  updateSocialComparison(netSalary) {
+    console.log('🎯 Mise à jour comparaison sociale');
+    
+    const container = document.getElementById('social-comparison');
+    if (!container) return;
+    
+    const approximateGross = Math.round(netSalary / 0.68);
+    console.log('🎯 Comparaison:', { netSalary, approximateGross });
+    
+    const similarJobs = salaryData.jobComparisons
+      .filter(job => Math.abs(job.salary - approximateGross) < 25000)
+      .sort((a, b) => Math.abs(a.salary - approximateGross) - Math.abs(b.salary - approximateGross))
+      .slice(0, 3);
+
+    const percentile = salaryData.percentileRanges.find(range => 
+      approximateGross >= range.minSalary && approximateGross < range.maxSalary
+    );
+
+    let betterThan = 50;
+    if (approximateGross < 35000) betterThan = 15;
+    else if (approximateGross < 50000) betterThan = 35;
+    else if (approximateGross < 65000) betterThan = 55;
+    else if (approximateGross < 80000) betterThan = 75;
+    else if (approximateGross < 100000) betterThan = 85;
+    else betterThan = 90;
+
+    const html = `
+      <div class="space-y-3">
+        <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+          <div class="text-sm font-medium text-emerald-700">Votre position :</div>
+          <div class="font-bold text-emerald-600">${percentile?.percentile || 'Top 10%'}</div>
+          <div class="text-xs text-emerald-600 mt-1">
+            Mieux que <strong>${betterThan}%</strong> des Québécois
+          </div>
+        </div>
+        
+        ${similarJobs.length > 0 ? `
+          <div class="space-y-2">
+            <div class="text-xs font-medium text-gray-700">Salaires similaires (brut) :</div>
+            ${similarJobs.map(job => `
+              <div class="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
+                <span class="flex items-center">
+                  <span class="mr-2">${job.emoji}</span>
+                  <span>${job.title}</span>
+                </span>
+                <span class="font-medium text-gray-700">${this.formatCurrency(job.salary)}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <div class="text-xs text-gray-600 p-2 bg-gray-50 rounded">
+            🎯 Votre salaire est dans une catégorie unique ! Excellent niveau.
+          </div>
+        `}
+        
+        <div class="text-xs text-center p-2 rounded ${
+          approximateGross > 80000 ? 'bg-green-50 text-green-700' :
+          approximateGross > 60000 ? 'bg-blue-50 text-blue-700' :
+          approximateGross > 45000 ? 'bg-orange-50 text-orange-700' :
+          'bg-amber-50 text-amber-700'
+        }">
+          ${approximateGross > 80000 ? '🌟 Excellent salaire ! Vous êtes dans le top 20%' :
+            approximateGross > 60000 ? '👍 Bon salaire, au-dessus de la moyenne québécoise' :
+            approximateGross > 45000 ? '📈 Salaire correct, place à l\'amélioration' :
+            '💪 Salaire d\'entrée, concentrez-vous sur l\'évolution'}
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+  }
+
+  updateFinancialTips(netSalary) {
+    console.log('💡 Mise à jour conseils financiers');
+    
+    const container = document.getElementById('financial-tips');
+    if (!container) return;
+    
+    const monthlyNet = netSalary / 12;
+    
+    const budgetBreakdown = {
+      housing: Math.round(monthlyNet * 0.30),
+      transport: Math.round(monthlyNet * 0.15),
+      food: Math.round(monthlyNet * 0.12),
+      debtMax: Math.round(monthlyNet * 0.20),
+      savings: Math.round(monthlyNet * 0.10),
+      fun: Math.round(monthlyNet * 0.13)
+    };
+    
+    const recommendation = financialTips.savingsRecommendations.find(rec => 
+      netSalary >= rec.minSalary && netSalary <= rec.maxSalary
+    ) || financialTips.savingsRecommendations[0];
+
+    const alerts = [];
+    if (monthlyNet < 3000) {
+      alerts.push({
+        icon: '⚠️',
+        text: 'Évitez les dettes de consommation, concentrez-vous sur l\'épargne d\'urgence',
+        color: 'amber'
+      });
+    }
+    if (monthlyNet > 6000) {
+      alerts.push({
+        icon: '🎯',
+        text: 'Excellent niveau ! Maximisez vos REER pour réduire vos impôts',
+        color: 'green'
+      });
+    }
+    if (budgetBreakdown.housing > 2000) {
+      alerts.push({
+        icon: '🏠',
+        text: 'Logement > 2000$/mois ? Considérez la banlieue ou la colocation',
+        color: 'blue'
+      });
+    }
+
+    const html = `
+      <div class="space-y-4">
+        <div class="bg-white rounded-lg p-3 border border-emerald-100">
+          <div class="text-sm font-semibold text-emerald-800 mb-3">💰 Budget mensuel recommandé</div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="flex justify-between">
+              <span class="text-gray-600">🏠 Logement max :</span>
+              <span class="font-semibold text-emerald-700">${this.formatCurrency(budgetBreakdown.housing)}</span>
             </div>
-          `).join('')}
-        </div>
-      ` : `
-        <div class="text-xs text-gray-600 p-2 bg-gray-50 rounded">
-          🎯 Votre salaire est dans une catégorie unique ! Excellent niveau.
-        </div>
-      `}
-      
-      <!-- Indications de niveau -->
-      <div class="text-xs text-center p-2 rounded ${
-        approximateGross > 80000 ? 'bg-green-50 text-green-700' :
-        approximateGross > 60000 ? 'bg-blue-50 text-blue-700' :
-        approximateGross > 45000 ? 'bg-orange-50 text-orange-700' :
-        'bg-amber-50 text-amber-700'
-      }">
-        ${approximateGross > 80000 ? '🌟 Excellent salaire ! Vous êtes dans le top 20%' :
-          approximateGross > 60000 ? '👍 Bon salaire, au-dessus de la moyenne québécoise' :
-          approximateGross > 45000 ? '📈 Salaire correct, place à l\'amélioration' :
-          '💪 Salaire d\'entrée, concentrez-vous sur l\'évolution'}
-      </div>
-    </div>
-  `;
-
-  container.innerHTML = html;
-}
-
-updateFinancialTips(netSalary) {
-  const container = document.getElementById('financial-tips');
-  const monthlyNet = netSalary / 12;
-  
-  // Calculs budgétaires intelligents
-  const budgetBreakdown = {
-    housing: Math.round(monthlyNet * 0.30), // 30% logement
-    transport: Math.round(monthlyNet * 0.15), // 15% transport  
-    food: Math.round(monthlyNet * 0.12), // 12% alimentation
-    debtMax: Math.round(monthlyNet * 0.20), // 20% dettes max
-    savings: Math.round(monthlyNet * 0.10), // 10% épargne min
-    fun: Math.round(monthlyNet * 0.13) // 13% loisirs/divers
-  };
-  
-  // Recommandations d'épargne
-  const recommendation = financialTips.savingsRecommendations.find(rec => 
-    netSalary >= rec.minSalary && netSalary <= rec.maxSalary
-  ) || financialTips.savingsRecommendations[0];
-
-  // Alertes intelligentes basées sur le salaire
-  const alerts = [];
-  if (monthlyNet < 3000) {
-    alerts.push({
-      icon: '⚠️',
-      text: 'Évitez les dettes de consommation, concentrez-vous sur l\'épargne d\'urgence',
-      color: 'amber'
-    });
-  }
-  if (monthlyNet > 6000) {
-    alerts.push({
-      icon: '🎯',
-      text: 'Excellent niveau ! Maximisez vos REER pour réduire vos impôts',
-      color: 'green'
-    });
-  }
-  if (budgetBreakdown.housing > 2000) {
-    alerts.push({
-      icon: '🏠',
-      text: `Logement > 2000$/mois ? Considérez la banlieue ou la colocation`,
-      color: 'blue'
-    });
-  }
-
-  const html = `
-    <div class="space-y-4">
-      <!-- Budget détaillé -->
-      <div class="bg-white rounded-lg p-3 border border-emerald-100">
-        <div class="text-sm font-semibold text-emerald-800 mb-3">💰 Budget mensuel recommandé</div>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <div class="flex justify-between">
-            <span class="text-gray-600">🏠 Logement max :</span>
-            <span class="font-semibold text-emerald-700">${this.formatCurrency(budgetBreakdown.housing)}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">🚗 Transport max :</span>
-            <span class="font-semibold text-blue-700">${this.formatCurrency(budgetBreakdown.transport)}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">🛒 Alimentation :</span>
-            <span class="font-semibold text-purple-700">${this.formatCurrency(budgetBreakdown.food)}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">💳 Dettes MAX :</span>
-            <span class="font-semibold text-red-700">${this.formatCurrency(budgetBreakdown.debtMax)}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">💾 Épargne min :</span>
-            <span class="font-semibold text-green-700">${this.formatCurrency(budgetBreakdown.savings)}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">🎮 Loisirs :</span>
-            <span class="font-semibold text-orange-700">${this.formatCurrency(budgetBreakdown.fun)}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Épargne recommandée -->
-      <div class="grid grid-cols-3 gap-2 text-xs">
-        <div class="text-center p-2 bg-blue-50 rounded">
-          <div class="font-semibold text-blue-700">CELIAPP</div>
-          <div class="text-blue-600">${this.formatCurrency(recommendation.celiapp)}/mois</div>
-        </div>
-        <div class="text-center p-2 bg-purple-50 rounded">
-          <div class="font-semibold text-purple-700">REER</div>
-          <div class="text-purple-600">${this.formatCurrency(recommendation.rrsp)}/mois</div>
-        </div>
-        <div class="text-center p-2 bg-green-50 rounded">
-          <div class="font-semibold text-green-700">CELI</div>
-          <div class="text-green-600">${this.formatCurrency(recommendation.tfsa)}/mois</div>
-        </div>
-      </div>
-      
-      <!-- Alertes intelligentes -->
-      ${alerts.length > 0 ? `
-        <div class="space-y-2">
-          ${alerts.map(alert => `
-            <div class="flex items-start text-xs p-2 bg-${alert.color}-50 rounded border border-${alert.color}-200">
-              <span class="mr-2 mt-0.5">${alert.icon}</span>
-              <span class="text-${alert.color}-700">${alert.text}</span>
+            <div class="flex justify-between">
+              <span class="text-gray-600">🚗 Transport max :</span>
+              <span class="font-semibold text-blue-700">${this.formatCurrency(budgetBreakdown.transport)}</span>
             </div>
-          `).join('')}
-        </div>
-      ` : ''}
-      
-      <!-- Conseils personnalisés -->
-      <div class="space-y-2">
-        ${recommendation.tips.map(tip => `
-          <div class="flex items-start text-xs">
-            <span class="text-emerald-500 mr-2 mt-0.5">✓</span>
-            <span class="text-emerald-700">${tip}</span>
+            <div class="flex justify-between">
+              <span class="text-gray-600">🛒 Alimentation :</span>
+              <span class="font-semibold text-purple-700">${this.formatCurrency(budgetBreakdown.food)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">💳 Dettes MAX :</span>
+              <span class="font-semibold text-red-700">${this.formatCurrency(budgetBreakdown.debtMax)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">💾 Épargne min :</span>
+              <span class="font-semibold text-green-700">${this.formatCurrency(budgetBreakdown.savings)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">🎮 Loisirs :</span>
+              <span class="font-semibold text-orange-700">${this.formatCurrency(budgetBreakdown.fun)}</span>
+            </div>
           </div>
-        `).join('')}
-      </div>
-      
-      <!-- Règles importantes -->
-      <div class="pt-2 border-t border-emerald-200 space-y-1">
-        <div class="text-xs text-emerald-600">
-          💡 <strong>Règle d'or :</strong> Ne jamais dépasser ${this.formatCurrency(budgetBreakdown.debtMax)}/mois en dettes
         </div>
-        <div class="text-xs text-emerald-600">
-          🛡️ <strong>Fonds d'urgence :</strong> ${this.formatCurrency(monthlyNet * 6)} (6 mois d'expenses)
+
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div class="text-center p-2 bg-blue-50 rounded">
+            <div class="font-semibold text-blue-700">CELIAPP</div>
+            <div class="text-blue-600">${this.formatCurrency(recommendation.celiapp)}/mois</div>
+          </div>
+          <div class="text-center p-2 bg-purple-50 rounded">
+            <div class="font-semibold text-purple-700">REER</div>
+            <div class="text-purple-600">${this.formatCurrency(recommendation.rrsp)}/mois</div>
+          </div>
+          <div class="text-center p-2 bg-green-50 rounded">
+            <div class="font-semibold text-green-700">CELI</div>
+            <div class="text-green-600">${this.formatCurrency(recommendation.tfsa)}/mois</div>
+          </div>
         </div>
-      </div>
-    </div>
-  `;
+       
+       ${alerts.length > 0 ? `
+         <div class="space-y-2">
+           ${alerts.map(alert => `
+             <div class="flex items-start text-xs p-2 bg-${alert.color}-50 rounded border border-${alert.color}-200">
+               <span class="mr-2 mt-0.5">${alert.icon}</span>
+               <span class="text-${alert.color}-700">${alert.text}</span>
+             </div>
+           `).join('')}
+         </div>
+       ` : ''}
+       
+       <div class="space-y-2">
+         ${recommendation.tips.map(tip => `
+           <div class="flex items-start text-xs">
+             <span class="text-emerald-500 mr-2 mt-0.5">✓</span>
+             <span class="text-emerald-700">${tip}</span>
+           </div>
+         `).join('')}
+       </div>
+       
+       <div class="pt-2 border-t border-emerald-200 space-y-1">
+         <div class="text-xs text-emerald-600">
+           💡 <strong>Règle d'or :</strong> Ne jamais dépasser ${this.formatCurrency(budgetBreakdown.debtMax)}/mois en dettes
+         </div>
+         <div class="text-xs text-emerald-600">
+           🛡️ <strong>Fonds d'urgence :</strong> ${this.formatCurrency(monthlyNet * 6)} (6 mois d'expenses)
+         </div>
+       </div>
+     </div>
+   `;
 
-  container.innerHTML = html;
-}
+   container.innerHTML = html;
+ }
 
-  formatCurrency(amount) {
-    return new Intl.NumberFormat('fr-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount).replace('CA', '').trim();
-  }
+ formatCurrency(amount) {
+   return new Intl.NumberFormat('fr-CA', {
+     style: 'currency',
+     currency: 'CAD',
+     minimumFractionDigits: 0,
+     maximumFractionDigits: 0
+   }).format(amount).replace('CA', '').trim();
+ }
 }
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🎬 DOM chargé, initialisation...');
-  new SalaryCalculator();
+ console.log('🎬 DOM chargé, initialisation...');
+ new SalaryCalculator();
 });
 </script>
-
+          
 </Base>
