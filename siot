@@ -1,0 +1,215 @@
+[33mcommit abb641a670e7e11f3fa8ccdf03bf4fcc9adde26a[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Wed May 28 19:16:08 2025 -0400
+
+    654
+
+[33mcommit 3111cbeb3bcaf903e4c63dda6f8eecadeeee6e97[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Wed May 28 13:01:49 2025 -0400
+
+    ads
+
+[33mcommit 3161ad7ccf383c489f22c893f69083824090cd89[m[33m ([m[1;35mrefs/stash[m[33m)[m
+Merge: 3c5c430 776371f
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 25 01:33:58 2025 -0400
+
+    Merge branch 'main' of https://github.com/pellem/salairenet.ca
+
+[33mcommit 776371f1f32fea8a292c43e9ba8e683600273100[m
+Author: pellem_m <9640193+pellem@users.noreply.github.com>
+Date:   Sun May 25 01:32:23 2025 -0400
+
+    Delete src/pages/salaires directory
+
+[33mcommit 3c5c430afc48562eb8bbb04e71871a8bf7ab5221[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 25 01:23:44 2025 -0400
+
+    fonctionnel mais a clean et a ameliorer
+
+[33mcommit 60d7b5d0084cc6f6d9b71c7c375bd7a75d703694[m
+Merge: 84b96ce 3655977
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 24 19:43:13 2025 -0400
+
+    Merge branch 'main' of https://github.com/pellem/salairenet.ca
+
+[33mcommit 84b96ce387900bc73ee6acb960e9dac5f3551d5b[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 24 19:41:10 2025 -0400
+
+    review complete
+
+[33mcommit 365597779395e98a79383749132756e85ffaaf95[m
+Author: pellem_m <9640193+pellem@users.noreply.github.com>
+Date:   Tue May 20 09:16:12 2025 -0400
+
+    Delete POERSERKK.js
+
+[33mcommit 6ce5af5b0507fc0e7eaf18c8f3df8e902c099fef[m
+Author: pellem_m <9640193+pellem@users.noreply.github.com>
+Date:   Tue May 20 09:16:04 2025 -0400
+
+    Delete POERSERKK.cjs
+
+[33mcommit 2814df3cbedfc5bdb0dc558197d9b3de1e899baf[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Mon May 19 22:17:25 2025 -0400
+
+    quick fix
+
+[33mcommit 5cd372463fe135ff7eb537e92d60f9bff21052c2[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Mon May 19 22:04:38 2025 -0400
+
+    otpimisation meta
+
+[33mcommit f83afb95afd2d3bf0efc57458269b41c4b724243[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Mon May 19 22:00:49 2025 -0400
+
+    pages secondaires fonctionnent
+
+[33mcommit c6d213a69c0278e1840ff707fcf9f6fc700dd34d[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Wed May 7 18:10:22 2025 -0400
+
+    correction taux horaire
+
+[33mcommit 0e9116bcc1fed725c4770beefb7593bab426f5b3[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Wed May 7 16:08:33 2025 -0400
+
+    track bouton
+
+[33mcommit a0a16b21991139eb78ba045affa6b92ca75a10fb[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Wed May 7 15:54:31 2025 -0400
+
+    ajout GA4 (Google Analytics)
+
+[33mcommit 7e6fd7ca726a6c3530d14ecdfa2a964d936bc12a[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 4 02:53:03 2025 -0400
+
+    Revert "Revert "ajout URLS dynamiques et pages pre-load SEO""
+    
+    This reverts commit 9d9a832c9d8ee43cbb0b362308c134f1642f9b9f.
+
+[33mcommit 75dcfb5d8358e2352b56397580761a621ccb8b3c[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 4 02:52:36 2025 -0400
+
+    Revert "ajout URLS dynamiques et pages pre-load SEO"
+    
+    This reverts commit 5b7cab1468427ee3828d0916221fff45a6cb13e2.
+
+[33mcommit 4d31fd7d5c938da6a3a5625437085c7d4ed3dd0c[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 4 02:46:40 2025 -0400
+
+    ajout URLS dynamiques et pages pre-load SEO
+
+[33mcommit 255e4343825e4bcf524921170495913008474670[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 4 02:42:49 2025 -0400
+
+    fix dynamic url form
+
+[33mcommit c5d16779eeab1e6e0f07dc219625871cd8c53979[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 4 02:33:52 2025 -0400
+
+    sitemap et robot
+
+[33mcommit cd5645a9516d3cd38115cffc299cb43bc2c3f0bf[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sun May 4 02:31:45 2025 -0400
+
+    ajout URLS dynamiques et pages pre-load SEO
+
+[33mcommit aafcade1181bdc3bd5ace40be44ba9b647ee9db1[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 23:33:58 2025 -0400
+
+    oklm
+
+[33mcommit 14a317dd2f5fcc6cd2e94833ed39942530400334[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 22:59:10 2025 -0400
+
+    fix tailwind import
+
+[33mcommit e062d87c589b1569f9ee2378d385a763e2f93fec[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 20:35:57 2025 -0400
+
+    asdasd
+
+[33mcommit ce0680a8dde91635146aa944b02e2d68bddebb92[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 20:32:16 2025 -0400
+
+    🧹 fix: force Rollup 2.79.1 to avoid native module crash in CI
+
+[33mcommit 81dce62e4cc832659e940a47404c16bb2c4242a9[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 20:29:42 2025 -0400
+
+    test
+
+[33mcommit d3f4fbfdd592255c9796301dbe69c8ed5ba244f8[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 20:21:23 2025 -0400
+
+    inchallah ca marche
+
+[33mcommit d4cfa438986f8cc8ebb069ba720fe1924229ffc6[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 20:06:58 2025 -0400
+
+    💉 Patch: add rollup-linux-x64-gnu to silence Cloudflare native crash
+
+[33mcommit 602a46a8821b2ecc35676bcbc2c2194eadefb8ae[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 19:57:10 2025 -0400
+
+    bordel
+
+[33mcommit efb6c7f93d4341a408cb49305d73917f542595c6[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 19:25:46 2025 -0400
+
+    ✅ add force-rollup-native patch file%
+
+[33mcommit 9d6bacb24a83bcb8f1f8ffc33846f247bc9ffb99[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 19:22:17 2025 -0400
+
+    💉 Patch: add rollup-linux-x64-gnu to silence Cloudflare native crash
+
+[33mcommit 9956d88d7a11852775826343d8620618c2760b43[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 19:05:48 2025 -0400
+
+    Fix: disable native Rollup for Cloudflare compatibility
+
+[33mcommit ef416b798bdf9eec0813fb80c747b66b2bb10b70[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 19:01:28 2025 -0400
+
+    Clean install + fix Rollup bug for Cloudflare
+
+[33mcommit 7a381793d7d3717f21374e4e7c3a5a01e7139595[m
+Author: freakconomics <101590104+freakconomics@users.noreply.github.com>
+Date:   Sat May 3 18:50:19 2025 -0400
+
+    premier push - beta alpha
+
+[33mcommit 8b5feaf62fc67cadc5a4f92222927e1d0364ea5e[m
+Author: pellem_m <9640193+pellem@users.noreply.github.com>
+Date:   Sat May 3 18:49:26 2025 -0400
+
+    Initial commit
