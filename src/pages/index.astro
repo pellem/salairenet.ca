@@ -1,1097 +1,1016 @@
 ---
-import Base from '../layouts/Base.astro';
-import { calculerSalaireNet } from '../lib/salaire.js';
-import salaryData from '../data/salaryData.json';
-import financialTips from '../data/financialTips.json';
-import advancedDeductions from '../data/advancedDeductions.json';
+// SalaireNet.ca 2026 - Dashboard Financière Premium
+// Lead Designer UI/UX + Senior Frontend Developer
 ---
 
-<Base 
-  title="Calculateur Salaire Net Québec 2025 | Simulation Complète et Personnalisée"
-  description="Le calculateur de salaire le plus complet du Québec. Calcul en temps réel, conseils personnalisés, comparaisons sociales et options avancées. Découvrez votre vrai net !"
->
-
-<header class="bg-gradient-to-br from-emerald-50 via-white to-blue-50 border-b border-gray-100 shadow-sm sticky top-0 z-50 backdrop-blur-sm">
-  <div class="max-w-6xl mx-auto px-4 py-4">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
-          <span class="text-white font-bold text-xl">💰</span>
-        </div>
-        <h1 class="text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-          SalaireNet.ca
-        </h1>
-      </div>
-      
-      <!-- Province Toggle -->
-      <div class="flex items-center space-x-2 bg-white rounded-full p-1 shadow-sm border border-gray-200">
-        <button id="toggle-qc" class="province-toggle active px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200">
-          🍁 Québec
-        </button>
-        <button id="toggle-on" class="province-toggle px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200">
-          🏢 Ontario  
-        </button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
-  
-  <!-- Hero Section -->
-  <section class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculateur de salaire net Québec 2026 - Découvrez votre vrai pouvoir d'achat avec les taux fiscaux à jour">
+    <title>SalaireNet.ca - Votre Vrai Salaire en 2026</title>
     
-    <div class="text-center mb-6 md:mb-8">
-      <h2 class="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-        Calculateur Salaire Net
-        <span class="block text-emerald-600" id="province-title">Québec 2025</span>
-      </h2>
-      <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" id="hero-subtitle">
-        Le calculateur le plus complet du Québec avec conseils personnalisés
-      </p>
-    </div>
-
-    <!-- Quick Presets -->
-    <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
-      <button class="preset-btn" data-salary="45000" data-type="salarie">
-        👨‍💻 Dev Junior <span class="block text-xs opacity-75">45k$</span>
-      </button>
-      <button class="preset-btn" data-salary="75000" data-type="salarie">
-        👨‍💼 Dev Senior <span class="block text-xs opacity-75">75k$</span>
-      </button>
-      <button class="preset-btn" data-salary="95000" data-type="salarie">
-        🚀 Lead Tech <span class="block text-xs opacity-75">95k$</span>
-      </button>
-      <button class="preset-btn" data-salary="60000" data-type="freelance">
-        💼 Freelance <span class="block text-xs opacity-75">60k$</span>
-      </button>
-    </div>
-
-    <div class="grid lg:grid-cols-3 gap-6 md:gap-8">
-      
-      <!-- Main Calculator -->
-      <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          
-          <!-- Calculator Header -->
-          <div class="bg-gradient-to-r from-emerald-500 to-blue-500 p-4 md:p-6 text-white">
-            <h3 class="text-xl md:text-2xl font-bold mb-2">⚡ Calcul en temps réel</h3>
-            <p class="text-emerald-100">Saisissez votre salaire pour un calcul instantané</p>
-          </div>
-
-          <div class="p-4 md:p-6">
-            
-            <!-- Main Inputs -->
-            <div class="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
-              
-              <!-- Salary Input -->
-              <div class="space-y-3">
-                <label class="block text-gray-700 font-semibold">💰 Salaire annuel brut</label>
-                <div class="relative">
-                  <input 
-                    type="number" 
-                    id="salary-input" 
-                    class="w-full p-3 md:p-4 text-lg md:text-xl font-bold border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 transition-colors"
-                    placeholder="65000"
-                    min="20000"
-                    max="500000"
-                  />
-                  <span class="absolute right-3 md:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">CAD $</span>
-                </div>
-                
-                <!-- Visual Slider -->
-                <div class="mt-3">
-                  <input 
-                    type="range" 
-                    id="salary-slider" 
-                    min="20000" 
-                    max="200000" 
-                    step="1000"
-                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                  />
-                  <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>20k$</span>
-                    <span>200k$</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Status & Hours -->
-              <div class="space-y-3">
-                <label class="block text-gray-700 font-semibold">👤 Votre statut</label>
-                <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
-                  <button id="status-employee" class="status-btn active py-2 md:py-3 px-3 md:px-4 rounded-lg text-sm font-medium transition-all duration-200">
-                    💼 Salarié
-                  </button>
-                  <button id="status-freelance" class="status-btn py-2 md:py-3 px-3 md:px-4 rounded-lg text-sm font-medium transition-all duration-200">
-                    🚀 Freelance
-                  </button>
-                </div>
-                
-                <div>
-                  <label class="block text-gray-600 text-sm font-medium mb-2">⏰ Heures/semaine</label>
-                  <input 
-                    type="number" 
-                    id="hours-input" 
-                    value="35" 
-                    min="20" 
-                    max="60"
-                    class="w-full p-3 border border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Results Section -->
-            <div id="results-container" class="hidden space-y-6">
-              
-              <!-- Main Net Result -->
-              <div class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl p-4 md:p-6 border border-emerald-200">
-                <div class="text-center">
-                  <p class="text-gray-600 mb-2">Votre salaire net annuel</p>
-                  <div class="text-3xl md:text-4xl font-bold text-emerald-600 mb-1" id="net-annual">-</div>
-                  <p class="text-gray-500">soit <span id="net-monthly" class="font-semibold text-gray-700">-</span> par mois</p>
-                </div>
-              </div>
-
-              <!-- Accounting Style Breakdown -->
-              <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
-                <h4 class="font-bold text-gray-800 text-lg mb-4">📊 Décomposition comptable</h4>
-                
-                <div class="space-y-2 font-mono text-sm md:text-base">
-                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                    <span class="text-gray-700">💰 Salaire brut annuel :</span>
-                    <span class="font-bold text-gray-900" id="breakdown-gross">-</span>
-                  </div>
-                  <div class="flex justify-between items-center py-1">
-                    <span class="text-red-600">➖ Impôt fédéral :</span>
-                    <span class="font-semibold text-red-600" id="breakdown-federal">-</span>
-                  </div>
-                  <div class="flex justify-between items-center py-1">
-                    <span class="text-blue-600" id="breakdown-provincial-label">➖ Impôt provincial (QC) :</span>
-                    <span class="font-semibold text-blue-600" id="breakdown-provincial">-</span>
-                  </div>
-                  <div class="flex justify-between items-center py-1">
-                    <span class="text-purple-600">➖ RRQ :</span>
-                    <span class="font-semibold text-purple-600" id="breakdown-rrq">-</span>
-                  </div>
-                  <div class="flex justify-between items-center py-1">
-                    <span class="text-orange-600">➖ RQAP :</span>
-                    <span class="font-semibold text-orange-600" id="breakdown-rqap">-</span>
-                  </div>
-                  <div class="flex justify-between items-center py-1" id="breakdown-ae-row">
-                    <span class="text-gray-600">➖ Assurance-emploi :</span>
-                    <span class="font-semibold text-gray-600" id="breakdown-ae">-</span>
-                  </div>
-                  
-                  <div class="flex justify-between items-center py-3 border-t-2 border-gray-400 font-bold text-lg">
-                    <span class="text-emerald-700">✅ SALAIRE NET ANNUEL :</span>
-                    <span class="text-emerald-600" id="breakdown-net">-</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Time Breakdown -->
-              <div class="bg-white rounded-2xl p-4 md:p-6 border border-gray-200">
-                <h4 class="font-bold text-gray-800 text-lg mb-4">🗓️ Répartition temporelle</h4>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                  <div class="text-center p-3 bg-emerald-50 rounded-lg">
-                    <div class="text-xs text-emerald-600 mb-1">Mensuel</div>
-                    <div class="font-bold text-emerald-700" id="time-monthly">-</div>
-                  </div>
-                  <div class="text-center p-3 bg-blue-50 rounded-lg">
-                    <div class="text-xs text-blue-600 mb-1">Bi-mensuel</div>
-                    <div class="font-bold text-blue-700" id="time-bimonthly">-</div>
-                  </div>
-                  <div class="text-center p-3 bg-purple-50 rounded-lg">
-                    <div class="text-xs text-purple-600 mb-1">Semaine</div>
-                    <div class="font-bold text-purple-700" id="time-weekly">-</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Sidebar -->
-      <div class="space-y-4 md:space-y-6">
-        
-        <!-- Social Comparison -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-6">
-          <h3 class="font-bold text-gray-800 mb-4 flex items-center">
-            <span class="mr-2">🎯</span> Votre position sociale
-          </h3>
-          <div id="social-comparison" class="space-y-3 text-sm">
-            <p class="text-gray-600">Saisissez votre salaire pour voir votre position</p>
-          </div>
-        </div>
-
-        <!-- Financial Recommendations -->
-        <div class="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg border border-emerald-200 p-4 md:p-6">
-          <h3 class="font-bold text-emerald-800 mb-4 flex items-center">
-            <span class="mr-2">💡</span> Conseils personnalisés
-          </h3>
-          <div id="financial-tips" class="space-y-3 text-sm">
-            <p class="text-emerald-700">Des conseils adaptés à votre situation apparaîtront ici</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<!-- CSS styles (inchangé) -->
-<style>
-  /* Tous tes styles CSS existants */
-  .slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10b981, #3b82f6);
-    cursor: pointer;
-    border: 3px solid white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
-
-  .province-toggle.active {
-    background: linear-gradient(135deg, #10b981, #3b82f6);
-    color: white;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  }
-
-  .status-btn.active {
-    background: linear-gradient(135deg, #10b981, #3b82f6);
-    color: white;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  }
-
-  .preset-btn {
-    @apply bg-white hover:bg-emerald-50 border border-emerald-200 hover:border-emerald-300 rounded-xl px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium text-emerald-700 transition-all duration-200 hover:shadow-md;
-  }
-
-  @keyframes shimmer {
-  0% { transform: translateX(-100%) skewX(-12deg); }
-  100% { transform: translateX(200%) skewX(-12deg); }
-}
-
-.animate-shimmer {
-  animation: shimmer 1.5s ease-in-out;
-}
-
-.shadow-3xl {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(16, 185, 129, 0.3);
-}
-</style>
-
-<script define:vars={{ salaryData, financialTips, advancedDeductions }}>
-console.log('🚀 Script chargé !', { salaryData, financialTips, advancedDeductions });
-
-// URL Management utilities
-class UrlManager {
-  static parseUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      salaire: parseInt(params.get('salaire')) || 0,
-      statut: params.get('statut') || 'salarie',
-      province: params.get('province') || 'QC'
-    };
-  }
-
-  static updateUrl(params) {
-    const url = new URL(window.location);
-    if (params.salaire > 0) {
-      url.searchParams.set('salaire', params.salaire);
-      url.searchParams.set('statut', params.statut);
-      url.searchParams.set('province', params.province);
-    } else {
-      url.searchParams.delete('salaire');
-      url.searchParams.delete('statut');
-      url.searchParams.delete('province');
-    }
-    window.history.replaceState({}, '', url);
-  }
-
-  static generateShareUrl(params) {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/?salaire=${params.salaire}&statut=${params.statut}&province=${params.province}`;
-  }
-}
-
-// Time calculator utility
-class TimeCalculator {
-  static calculateWorkingDays(netSalary, grossSalary, province) {
-    const totalTax = grossSalary - netSalary;
-    const taxRate = totalTax / grossSalary;
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    const workingDaysPerYear = 250;
-    const taxDays = Math.round(workingDaysPerYear * taxRate);
-    
-    const startDate = new Date(new Date().getFullYear(), 0, 1);
-    const taxEndDate = new Date(startDate);
-    taxEndDate.setDate(startDate.getDate() + taxDays);
-    
-    return {
-      taxDays: taxDays,
-      taxEndDate: taxEndDate,
-      taxRate: taxRate
-    };
-  }
-}
-
-// Updated salary calculator function with province support
-function calculerSalaireNet(salaire, statut = 'salarie', province = 'QC') {
-  console.log('🔢 Calcul côté client:', salaire, statut, province);
-  
-  const isFreelance = statut === 'freelance';
-  
-  // RRQ/CPP - Different for QC vs ON
-  const pensionRate = isFreelance ? 0.128 : 0.064;
-  let pension;
-  
-  if (province === 'QC') {
-    pension = Math.min(Math.max(0, salaire - 3500), 71200 - 3500) * pensionRate;
-  } else {
-    pension = Math.min(Math.max(0, salaire - 3500), 71300 - 3500) * pensionRate;
-  }
-
-  // RQAP (Quebec only) vs EI
-  let rqap = 0;
-  let ae = 0;
-  
-  if (province === 'QC') {
-    rqap = Math.min(salaire, 98000) * (isFreelance ? 0.00878 : 0.00494);
-    ae = isFreelance ? 0 : Math.min(salaire, 65700) * 0.0131;
-  } else {
-    ae = isFreelance ? 0 : Math.min(salaire, 65700) * 0.0131;
-  }
-
-  // Federal tax (same for both)
-  const fed = calculerPalier(salaire, [
-    { limit: 57375, rate: 0.15 },
-    { limit: 114750, rate: 0.205 },
-    { limit: 177882, rate: 0.26 },
-    { limit: 253414, rate: 0.29 },
-    { limit: Infinity, rate: 0.33 }
-  ]);
-
-  // Provincial tax - DIFFERENT RATES
-  const provincialRates = {
-    QC: [
-      { limit: 53255, rate: 0.14 },
-      { limit: 106495, rate: 0.19 },
-      { limit: 129590, rate: 0.24 },
-      { limit: Infinity, rate: 0.2575 }
-    ],
-    ON: [
-      { limit: 54183, rate: 0.0505 },
-      { limit: 108367, rate: 0.0915 },
-      { limit: 150000, rate: 0.1116 },
-      { limit: 220000, rate: 0.1216 },
-      { limit: Infinity, rate: 0.1316 }
-    ]
-  };
-
-  const prov = calculerPalier(salaire, provincialRates[province]);
-  const total = pension + rqap + ae + fed + prov;
-  
-  return {
-    net: Math.round(salaire - total),
-    pension: Math.round(pension),
-    rqap: Math.round(rqap),
-    ae: Math.round(ae),
-    fed: Math.round(fed),
-    prov: Math.round(prov),
-    province: province
-  };
-}
-
-function calculerPalier(income, brackets) {
-  let tax = 0, prev = 0;
-  for (const b of brackets) {
-    const taxable = Math.min(income, b.limit) - prev;
-    if (taxable > 0) {
-      tax += taxable * b.rate;
-      prev = b.limit;
-    } else break;
-  }
-  return tax;
-}
-
-class SalaryCalculator {
-  constructor() {
-    this.currentProvince = 'QC';
-    this.currentStatus = 'salarie';
-    this.currentSalary = 0;
-    console.log('✅ Calculator initialisé');
-    this.initEventListeners();
-    this.loadFromUrl();
-  }
-
-  loadFromUrl() {
-    const params = UrlManager.parseUrlParams();
-    console.log('🔍 Paramètres URL:', params);
-    
-    if (params.salaire > 0) {
-      console.log('📂 Chargement depuis URL:', params);
-      
-      // Set form values
-      const salaryInput = document.getElementById('salary-input');
-      const salarySlider = document.getElementById('salary-slider');
-      
-      if (salaryInput) salaryInput.value = params.salaire;
-      if (salarySlider) salarySlider.value = params.salaire;
-      
-      // Set status and province
-      this.switchStatus(params.statut);
-      this.switchProvince(params.province);
-      
-      // Calculate
-      setTimeout(() => {
-        this.calculateSalary(params.salaire);
-      }, 100);
-    } else {
-      // Default calculation
-      setTimeout(() => {
-        this.calculateSalary(65000);
-        const salaryInput = document.getElementById('salary-input');
-        const salarySlider = document.getElementById('salary-slider');
-        if (salaryInput) salaryInput.value = 65000;
-        if (salarySlider) salarySlider.value = 65000;
-      }, 500);
-    }
-  }
-
-  initEventListeners() {
-    console.log('🔗 Ajout des event listeners...');
-    
-    document.getElementById('toggle-qc')?.addEventListener('click', () => this.switchProvince('QC'));
-    document.getElementById('toggle-on')?.addEventListener('click', () => this.switchProvince('ON'));
-
-    document.getElementById('status-employee')?.addEventListener('click', () => this.switchStatus('salarie'));
-    document.getElementById('status-freelance')?.addEventListener('click', () => this.switchStatus('freelance'));
-
-    const salaryInput = document.getElementById('salary-input');
-    const salarySlider = document.getElementById('salary-slider');
-    
-    salaryInput?.addEventListener('input', (e) => {
-      const value = parseFloat(e.target.value) || 0;
-      if (salarySlider) salarySlider.value = Math.min(value, 200000);
-      this.calculateSalary(value);
-      this.updateUrl();
-    });
-    
-    salarySlider?.addEventListener('input', (e) => {
-      const value = parseFloat(e.target.value);
-      if (salaryInput) salaryInput.value = value;
-      this.calculateSalary(value);
-      this.updateUrl();
-    });
-
-    document.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const salary = parseInt(btn.dataset.salary);
-        const type = btn.dataset.type;
-        console.log('🎯 Preset cliqué:', salary, type);
-        
-        if (salaryInput) salaryInput.value = salary;
-        if (salarySlider) salarySlider.value = salary;
-        this.switchStatus(type);
-        this.calculateSalary(salary);
-        this.updateUrl();
-      });
-    });
-
-    // 🆕 Ajout du bouton de partage après le chargement du DOM
-    setTimeout(() => {
-      this.addShareButton();
-    }, 1000);
-  }
-addShareButton() {
-  if (document.getElementById('share-btn')) return;
-  
-  const resultsContainer = document.getElementById('results-container');
-  if (resultsContainer) {
-    const shareContainer = document.createElement('div');
-    shareContainer.className = 'mt-6 p-6 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 rounded-2xl border-2 border-dashed border-emerald-200 relative overflow-hidden';
-    
-    shareContainer.innerHTML = `
-      <!-- Animated background particles -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-2 left-4 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
-        <div class="absolute top-6 right-8 w-1 h-1 bg-blue-400 rounded-full animate-pulse"></div>
-        <div class="absolute bottom-4 left-12 w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"></div>
-      </div>
-      
-      <div class="text-center space-y-4 relative">
-        <div class="space-y-1">
-          <div class="text-lg font-bold text-gray-800 flex items-center justify-center space-x-2">
-            <span class="animate-bounce">🎉</span>
-            <span>Ton résultat est prêt !</span>
-            <span class="animate-bounce" style="animation-delay: 0.1s;">🎉</span>
-          </div>
-          <div class="text-sm text-gray-600">
-            Impressionne tes collègues avec ce calcul précis
-          </div>
-        </div>
-        
-        <button id="share-btn" class="group relative bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-500 w-full max-w-sm mx-auto overflow-hidden">
-          
-          <!-- Shimmer effect -->
-          <div class="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer"></div>
-          
-          <div class="relative flex items-center justify-center space-x-3">
-            <span class="text-2xl transform group-hover:rotate-12 transition-transform duration-300">🚀</span>
-            <div class="text-center">
-              <div class="text-lg font-black">PARTAGER</div>
-              <div class="text-xs opacity-90 font-medium">Génère ton lien perso</div>
-            </div>
-            <span class="text-2xl transform group-hover:-rotate-12 transition-transform duration-300">💫</span>
-          </div>
-        </button>
-        
-        <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
-          <div class="flex items-center space-x-1">
-            <span>⚡</span>
-            <span>Copie instantanée</span>
-          </div>
-          <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
-          <div class="flex items-center space-x-1">
-            <span>🔒</span>
-            <span>Sécurisé</span>
-          </div>
-          <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
-          <div class="flex items-center space-x-1">
-            <span>🎯</span>
-            <span>URL unique</span>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    const breakdown = resultsContainer.querySelector('.space-y-6');
-    if (breakdown) {
-      breakdown.appendChild(shareContainer);
-    }
-    
-    const shareBtn = document.getElementById('share-btn');
-    if (shareBtn) {
-      shareBtn.addEventListener('click', () => this.shareResult());
-    }
-  }
-}
-
-  shareResult() {
-  const shareUrl = UrlManager.generateShareUrl({
-    salaire: this.currentSalary,
-    statut: this.currentStatus,
-    province: this.currentProvince
-  });
-
-  const result = calculerSalaireNet(this.currentSalary, this.currentStatus, this.currentProvince);
-  const netSalary = this.formatCurrency(result.net);
-  const statusLabel = this.currentStatus === 'freelance' ? 'freelance' : 'salarié';
-  const provinceLabel = this.currentProvince === 'QC' ? 'Québec' : 'Ontario';
-
-  console.log('🔗 URL de partage:', shareUrl);
-
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    const btn = document.getElementById('share-btn');
-    if (btn) {
-      const originalHTML = btn.innerHTML;
-      
-      // Animation de succès ultra-satisfaisante
-      btn.innerHTML = `
-        <div class="relative flex items-center justify-center space-x-3">
-          <span class="text-2xl animate-bounce">✅</span>
-          <div class="text-center">
-            <div class="text-lg font-black">LIEN COPIÉ !</div>
-            <div class="text-xs opacity-90 font-medium">Prêt à impressionner</div>
-          </div>
-          <span class="text-2xl animate-spin">🎉</span>
-        </div>
-      `;
-      
-      btn.classList.remove('from-emerald-500', 'via-blue-500', 'to-purple-500');
-      btn.classList.add('from-green-500', 'via-emerald-500', 'to-green-600');
-      
-      setTimeout(() => {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove('from-green-500', 'via-emerald-500', 'to-green-600');
-        btn.classList.add('from-emerald-500', 'via-blue-500', 'to-purple-500');
-      }, 3000);
-    }
-  }).catch(() => {
-    // Fallback avec message viral optimisé
-    const message = `🎯 ${netSalary} net/an comme ${statusLabel} au ${provinceLabel} !\n\n✨ Calcule ton salaire ici : ${shareUrl}`;
-    
-    // Essai de partage natif mobile d'abord
-    if (navigator.share) {
-      navigator.share({
-        title: `💰 Mon salaire net : ${netSalary}/an !`,
-        text: `Découvre combien tu gagnes vraiment avec ce calculateur québécois`,
-        url: shareUrl
-      });
-    } else {
-      alert(message);
-    }
-  });
-}
-
-  updateUrl() {
-    if (this.currentSalary > 0) {
-      UrlManager.updateUrl({
-        salaire: this.currentSalary,
-        statut: this.currentStatus,
-        province: this.currentProvince
-      });
-      console.log('🔄 URL mise à jour:', window.location.href);
-    }
-  }
-
-  switchProvince(province) {
-    console.log('🗺️ Switch province:', province);
-    this.currentProvince = province;
-    
-    document.querySelectorAll('.province-toggle').forEach(btn => btn.classList.remove('active'));
-    const toggleBtn = document.getElementById(`toggle-${province.toLowerCase()}`);
-    if (toggleBtn) toggleBtn.classList.add('active');
-    
-    const labels = {
-      QC: { title: 'Québec 2025', provincial: '➖ Impôt Québec :' },
-      ON: { title: 'Ontario 2025', provincial: '➖ Impôt Ontario :' }
-    };
-    
-    const titleEl = document.getElementById('province-title');
-    const labelEl = document.getElementById('breakdown-provincial-label');
-    
-    if (titleEl) titleEl.textContent = labels[province].title;
-    if (labelEl) labelEl.textContent = labels[province].provincial;
-    
-    if (this.currentSalary > 0) {
-      this.calculateSalary(this.currentSalary);
-      this.updateUrl();
-    }
-  }
-
-  switchStatus(status) {
-    console.log('👤 Switch status:', status);
-    this.currentStatus = status;
-    
-    document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
-    const targetBtn = status === 'salarie' ? 'status-employee' : 'status-freelance';
-    const statusBtn = document.getElementById(targetBtn);
-    if (statusBtn) statusBtn.classList.add('active');
-    
-    if (this.currentSalary > 0) {
-      this.calculateSalary(this.currentSalary);
-      this.updateUrl();
-    }
-  }
-
-  calculateSalary(grossSalary) {
-    if (!grossSalary || grossSalary <= 0) {
-      console.log('❌ Pas de salaire à calculer');
-      const container = document.getElementById('results-container');
-      if (container) container.classList.add('hidden');
-      return;
-    }
-
-    console.log('🔢 Calcul pour:', grossSalary, this.currentStatus, this.currentProvince);
-    this.currentSalary = grossSalary;
-    
-    const result = calculerSalaireNet(grossSalary, this.currentStatus, this.currentProvince);
-    console.log('📊 Résultat:', result);
-    
-    const container = document.getElementById('results-container');
-    if (container) {
-      container.classList.remove('hidden');
-      this.updateResults(result, grossSalary);
-      this.updateTimeBreakdown(result.net, grossSalary);
-      this.updateSocialComparison(result.net);
-      this.updateFinancialTips(result.net);
-      
-      // Add share button if not already present
-      setTimeout(() => this.addShareButton(), 100);
-    }
-  }
-
-  updateResults(result, grossSalary) {
-    console.log('📝 Mise à jour des résultats:', result);
-    
-    // Main results
-    const netAnnualEl = document.getElementById('net-annual');
-    const netMonthlyEl = document.getElementById('net-monthly');
-    
-    if (netAnnualEl) netAnnualEl.textContent = this.formatCurrency(result.net);
-    if (netMonthlyEl) netMonthlyEl.textContent = this.formatCurrency(result.net / 12);
-
-    // Breakdown
-    const elements = {
-      'breakdown-gross': grossSalary,
-      'breakdown-federal': `-${result.fed}`,
-      'breakdown-provincial': `-${result.prov}`,
-      'breakdown-rrq': `-${result.pension}`,
-      'breakdown-rqap': `-${result.rqap}`,
-      'breakdown-ae': `-${result.ae}`,
-      'breakdown-net': result.net
-    };
-
-    Object.entries(elements).forEach(([id, value]) => {
-      const el = document.getElementById(id);
-      if (el) {
-        if (typeof value === 'string' && value.startsWith('-')) {
-          el.textContent = value.replace('-', `-${this.formatCurrency(Math.abs(parseFloat(value)))}`);
-        } else {
-          el.textContent = this.formatCurrency(value);
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                        }
+                    },
+                    animation: {
+                        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+                        'slide-up': 'slide-up 0.6s ease-out',
+                        'fade-in': 'fade-in 0.4s ease-out',
+                    },
+                    keyframes: {
+                        'glow-pulse': {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(52, 211, 153, 0.3)' },
+                            '50%': { boxShadow: '0 0 40px rgba(52, 211, 153, 0.6)' },
+                        },
+                        'slide-up': {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
         }
-      }
-    });
-
-    // Show/hide AE row for freelancers
-    const aeRow = document.getElementById('breakdown-ae-row');
-    if (aeRow) {
-      if (this.currentStatus === 'freelance') {
-        aeRow.classList.add('hidden');
-      } else {
-        aeRow.classList.remove('hidden');
-      }
-    }
-
-    this.showProvinceComparison(grossSalary);
-  }
-
-  showProvinceComparison(grossSalary) {
-    const qcResult = calculerSalaireNet(grossSalary, this.currentStatus, 'QC');
-    const onResult = calculerSalaireNet(grossSalary, this.currentStatus, 'ON');
+    </script>
     
-    const difference = onResult.net - qcResult.net;
-    const betterProvince = difference > 0 ? 'Ontario' : 'Québec';
-    const amount = Math.abs(difference);
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    let comparisonDiv = document.getElementById('province-comparison');
-    if (!comparisonDiv) {
-      comparisonDiv = document.createElement('div');
-      comparisonDiv.id = 'province-comparison';
-      comparisonDiv.className = 'mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-200';
-      
-      const resultsContainer = document.getElementById('results-container');
-      const spaceDiv = resultsContainer?.querySelector('.space-y-6');
-      if (spaceDiv) {
-        spaceDiv.appendChild(comparisonDiv);
-      }
-    }
-    
-    comparisonDiv.innerHTML = `
-      <h4 class="font-bold text-gray-800 mb-3">🍁 vs 🏢 Comparaison provinciale</h4>
-      <div class="grid grid-cols-2 gap-4 text-sm">
-        <div class="text-center p-3 bg-blue-100 rounded-lg">
-          <div class="font-semibold text-blue-800">Québec</div>
-          <div class="text-lg font-bold text-blue-600">${this.formatCurrency(qcResult.net)}</div>
-          <div class="text-xs text-blue-600">net/année</div>
-        </div>
-        <div class="text-center p-3 bg-orange-100 rounded-lg">
-          <div class="font-semibold text-orange-800">Ontario</div>
-          <div class="text-lg font-bold text-orange-600">${this.formatCurrency(onResult.net)}</div>
-          <div class="text-xs text-orange-600">net/année</div>
-        </div>
-      </div>
-      <div class="text-center mt-3 p-2 bg-white rounded-lg">
-        <div class="font-semibold text-gray-800">
-          ${betterProvince} gagnant : <span class="text-green-600">+${this.formatCurrency(amount)}</span>
-        </div>
-        <div class="text-xs text-gray-600 mt-1">
-          ${difference > 0 ? 'Ontario a des impôts plus bas' : 'Québec reste avantageux'}
-        </div>
-      </div>
-    `;
-  }
-
-  updateTimeBreakdown(netAnnual, grossAnnual) {
-    console.log('⏰ Mise à jour time breakdown');
-    
-    const monthly = netAnnual / 12;
-    const bimonthly = monthly / 2;
-    const weekly = netAnnual / 52;
-
-    const timeElements = {
-      'time-monthly': monthly,
-      'time-bimonthly': bimonthly,
-      'time-weekly': weekly
-    };
-
-    Object.entries(timeElements).forEach(([id, value]) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = this.formatCurrency(value);
-    });
-
-    this.addTaxTimeCalculator(netAnnual, grossAnnual);
-  }
-
-  addTaxTimeCalculator(netAnnual, grossAnnual) {
-    const timeInfo = TimeCalculator.calculateWorkingDays(netAnnual, grossAnnual, this.currentProvince);
-    
-    let timeDiv = document.getElementById('tax-time-calculator');
-    if (!timeDiv) {
-      timeDiv = document.createElement('div');
-      timeDiv.id = 'tax-time-calculator';
-      timeDiv.className = 'mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200';
-      
-      // ✅ SÉLECTEUR CORRIGÉ - Trouve le container du time breakdown
-      const timeContainer = document.querySelector('#results-container .bg-white.rounded-2xl.p-4');
-      if (timeContainer) {
-        timeContainer.appendChild(timeDiv);
-      }
-    }
-
-    const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    
-    const taxEndMonth = monthNames[timeInfo.taxEndDate.getMonth()];
-    const taxEndDay = timeInfo.taxEndDate.getDate();
-
-    timeDiv.innerHTML = `
-      <h4 class="font-bold text-amber-800 mb-3">⏰ Calculateur de temps fiscal</h4>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div class="text-center p-3 bg-amber-100 rounded-lg">
-          <div class="font-semibold text-amber-800">Tu travailles pour les impots:</div>
-          <div class="text-2xl font-bold text-amber-600">${timeInfo.taxDays}</div>
-          <div class="text-xs text-amber-600">jours/année</div>
-        </div>
-        <div class="text-center p-3 bg-orange-100 rounded-lg">
-          <div class="font-semibold text-orange-800">Libre d'impôts à partir du</div>
-          <div class="text-lg font-bold text-orange-600">${taxEndDay} ${taxEndMonth}</div>
-          <div class="text-xs text-orange-600">Date approximative</div>
-        </div>
-      </div>
-      <div class="text-center mt-3 p-2 bg-white rounded-lg">
-        <div class="text-sm text-gray-700">
-          🏢 Tu travailles <strong>${(timeInfo.taxRate * 100).toFixed(1)}%</strong> de ton temps pour les gouvernements
-        </div>
-        <div class="text-xs text-gray-600 mt-1">
-          Soit environ <strong>${Math.round(timeInfo.taxRate * 8)} heures par jour</strong> de travail
-        </div>
-      </div>
-    `;
-  }
-
-  updateSocialComparison(netSalary) {
-    console.log('🎯 Mise à jour comparaison sociale');
-    
-    const container = document.getElementById('social-comparison');
-    if (!container) return;
-    
-    const approximateGross = Math.round(netSalary / 0.68);
-    console.log('🎯 Comparaison:', { netSalary, approximateGross });
-    
-    const similarJobs = salaryData.jobComparisons
-      .filter(job => Math.abs(job.salary - approximateGross) < 25000)
-      .sort((a, b) => Math.abs(a.salary - approximateGross) - Math.abs(b.salary - approximateGross))
-      .slice(0, 3);
-
-    const percentile = salaryData.percentileRanges.find(range => 
-      approximateGross >= range.minSalary && approximateGross < range.maxSalary
-    );
-
-    let betterThan = 50;
-    if (approximateGross < 35000) betterThan = 15;
-    else if (approximateGross < 50000) betterThan = 35;
-    else if (approximateGross < 65000) betterThan = 55;
-    else if (approximateGross < 80000) betterThan = 75;
-    else if (approximateGross < 100000) betterThan = 85;
-    else betterThan = 90;
-
-    const html = `
-      <div class="space-y-3">
-        <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-          <div class="text-sm font-medium text-emerald-700">Votre position :</div>
-          <div class="font-bold text-emerald-600">${percentile?.percentile || 'Top 10%'}</div>
-          <div class="text-xs text-emerald-600 mt-1">
-            Mieux que <strong>${betterThan}%</strong> des Québécois
-          </div>
-        </div>
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
         
-        ${similarJobs.length > 0 ? `
-          <div class="space-y-2">
-            <div class="text-xs font-medium text-gray-700">Salaires similaires (brut) :</div>
-            ${similarJobs.map(job => `
-              <div class="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
-                <span class="flex items-center">
-                  <span class="mr-2">${job.emoji}</span>
-                  <span>${job.title}</span>
-                </span>
-                <span class="font-medium text-gray-700">${this.formatCurrency(job.salary)}</span>
-              </div>
-            `).join('')}
-          </div>
-        ` : `
-          <div class="text-xs text-gray-600 p-2 bg-gray-50 rounded">
-            🎯 Votre salaire est dans une catégorie unique ! Excellent niveau.
-          </div>
-        `}
+        body {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
         
-        <div class="text-xs text-center p-2 rounded ${
-          approximateGross > 80000 ? 'bg-green-50 text-green-700' :
-          approximateGross > 60000 ? 'bg-blue-50 text-blue-700' :
-          approximateGross > 45000 ? 'bg-orange-50 text-orange-700' :
-          'bg-amber-50 text-amber-700'
-        }">
-          ${approximateGross > 80000 ? '🌟 Excellent salaire ! Vous êtes dans le top 20%' :
-            approximateGross > 60000 ? '👍 Bon salaire, au-dessus de la moyenne québécoise' :
-            approximateGross > 45000 ? '📈 Salaire correct, place à l\'amélioration' :
-            '💪 Salaire d\'entrée, concentrez-vous sur l\'évolution'}
+        /* Effet de grille subtile en arrière-plan */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(52, 211, 153, 0.4);
+            box-shadow: 0 20px 60px rgba(52, 211, 153, 0.2);
+        }
+        
+        /* Hero Number Animation */
+        .hero-number {
+            font-size: clamp(3rem, 15vw, 7rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 0.9;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(52, 211, 153, 0.3));
+        }
+        
+        /* Input Focus Glow */
+        input[type="number"]:focus {
+            border-color: rgba(52, 211, 153, 0.6);
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1), 0 0 20px rgba(52, 211, 153, 0.2);
+        }
+        
+        /* Toggle Active State */
+        .toggle-active {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: #020617;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(52, 211, 153, 0.4);
+        }
+        
+        /* Opportunity Card Shimmer Effect */
+        .opportunity-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .opportunity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .opportunity-card:hover::before {
+            left: 100%;
+        }
+        
+        /* Remove number input spinners */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        /* Breakdown Row Hover */
+        .breakdown-row {
+            transition: all 0.2s ease;
+        }
+        
+        .breakdown-row:hover {
+            background: rgba(52, 211, 153, 0.05);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.4);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(52, 211, 153, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(52, 211, 153, 0.5);
+        }
+        
+        /* Mode Realiste Toggle */
+        .realistic-mode-toggle {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .realistic-mode-toggle.active {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+        
+        .realistic-mode-toggle-circle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .realistic-mode-toggle.active .realistic-mode-toggle-circle {
+            left: 30px;
+        }
+    </style>
+</head>
+<body class="text-slate-50 antialiased">
+    
+    <!-- Main Container -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+        
+        <!-- Header -->
+        <header class="text-center mb-12 sm:mb-20 animate-slide-up">
+            <div class="inline-flex items-center justify-center gap-4 mb-6">
+                <!-- Logo Icon -->
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                    <svg class="w-8 h-8 sm:w-9 sm:h-9 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                
+                <!-- Logo Text -->
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight">
+                    <span class="bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 bg-clip-text text-transparent">
+                        SalaireNet
+                    </span>
+                    <span class="text-slate-400 text-2xl sm:text-4xl lg:text-5xl">.ca</span>
+                </h1>
+            </div>
+            
+            <p class="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
+                Découvrez votre <span class="text-emerald-400 font-semibold">vrai pouvoir d'achat</span> avec les taux fiscaux 2026 du Québec
+            </p>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
+            
+            <!-- Left Panel - Input Card -->
+            <div class="glass-card rounded-3xl p-6 sm:p-10 animate-slide-up" style="animation-delay: 0.1s;">
+                
+                <!-- Employment Type Toggle -->
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-300 mb-4 uppercase tracking-wide">Type d'emploi</label>
+                    <div class="flex gap-3 bg-slate-900/50 p-2 rounded-2xl border border-slate-800">
+                        <button id="btnSalarie" class="toggle-btn flex-1 py-4 px-5 rounded-xl font-bold text-sm transition-all toggle-active">
+                            💼 Salarié
+                        </button>
+                        <button id="btnFreelance" class="toggle-btn flex-1 py-4 px-5 rounded-xl font-bold text-sm text-slate-400 transition-all hover:text-slate-200">
+                            🚀 Travailleur autonome
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Salary Input -->
+                <div class="mb-8">
+                    <label for="salaireBrut" class="block text-sm font-bold text-slate-300 mb-4 uppercase tracking-wide">
+                        Salaire brut annuel
+                    </label>
+                    <div class="relative group">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-3xl sm:text-4xl font-black text-emerald-400">$</span>
+                        <input 
+                            type="number" 
+                            id="salaireBrut" 
+                            class="w-full bg-slate-900/70 border-2 border-slate-700 rounded-2xl py-5 sm:py-6 pl-16 sm:pl-20 pr-6 text-3xl sm:text-4xl font-black text-slate-50 focus:outline-none transition-all"
+                            placeholder="75 000"
+                            value="75000"
+                            min="0"
+                            step="5000"
+                        >
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 ml-1">Entrez votre salaire annuel avant impôts</p>
+                </div>
+
+                <!-- Period Toggle -->
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-300 mb-4 uppercase tracking-wide">Période de calcul</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-900/50 p-2 rounded-2xl border border-slate-800">
+                        <button class="period-btn py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all toggle-active" data-period="annuel">
+                            Annuel
+                        </button>
+                        <button class="period-btn py-3 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-400 transition-all hover:text-slate-200" data-period="mensuel">
+                            Mensuel
+                        </button>
+                        <button class="period-btn py-3 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-400 transition-all hover:text-slate-200" data-period="bihebdo">
+                            2 semaines
+                        </button>
+                        <button class="period-btn py-3 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-400 transition-all hover:text-slate-200" data-period="hebdo">
+                            Semaine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mode Réaliste Toggle -->
+                <div class="bg-gradient-to-br from-orange-500/10 to-rose-500/10 border border-orange-500/30 rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-orange-400 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Mode Réaliste
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Inclut temps de transport</p>
+                        </div>
+                        <div id="modeRealisteToggle" class="realistic-mode-toggle">
+                            <div class="realistic-mode-toggle-circle"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Realistic Mode Inputs (Hidden by default) -->
+                    <div id="realisticInputs" class="hidden space-y-4 mt-6 pt-6 border-t border-orange-500/20">
+                        <div>
+                            <label for="heuresTransport" class="block text-xs font-semibold text-slate-400 mb-2">
+                                Heures de transport par semaine
+                            </label>
+                            <input 
+                                type="number" 
+                                id="heuresTransport" 
+                                class="w-full bg-slate-900/70 border border-slate-700 rounded-xl py-3 px-4 text-base font-semibold text-slate-200 focus:outline-none transition-all"
+                                placeholder="5"
+                                value="5"
+                                min="0"
+                                step="0.5"
+                            >
+                        </div>
+                        <div>
+                            <label for="coutTransport" class="block text-xs font-semibold text-slate-400 mb-2">
+                                Coût de transport mensuel ($)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="coutTransport" 
+                                class="w-full bg-slate-900/70 border border-slate-700 rounded-xl py-3 px-4 text-base font-semibold text-slate-200 focus:outline-none transition-all"
+                                placeholder="200"
+                                value="200"
+                                min="0"
+                                step="10"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel - Results Card -->
+            <div class="glass-card rounded-3xl p-6 sm:p-10 animate-slide-up" style="animation-delay: 0.2s;">
+                
+                <!-- Hero Number - Net Salary -->
+                <div class="text-center mb-10 sm:mb-16">
+                    <p class="text-xs sm:text-sm font-black text-slate-500 mb-3 uppercase tracking-widest">Salaire Net</p>
+                    <div class="hero-number mb-4 animate-glow-pulse" id="salaireNet">
+                        $0
+                    </div>
+                    <p class="text-base sm:text-lg text-slate-400 font-semibold">
+                        <span id="periodLabel">par année</span>
+                    </p>
+                </div>
+
+                <!-- Realistic Mode Result (Hidden by default) -->
+                <div id="realisticResult" class="hidden bg-gradient-to-r from-orange-500/20 to-rose-500/20 border border-orange-500/40 rounded-2xl p-5 sm:p-6 mb-8 animate-fade-in">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-orange-500/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-orange-300 mb-2 uppercase tracking-wide">Votre Vrai Taux Horaire</h3>
+                            <p class="text-base text-slate-200 leading-relaxed" id="tauxHoraireRealiste">
+                                <!-- Sera rempli par JS -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax Breakdown -->
+                <div class="space-y-2 mb-8">
+                    <h3 class="text-xs font-black text-slate-500 mb-5 uppercase tracking-widest">Décomposition Fiscale</h3>
+                    
+                    <div class="breakdown-row flex justify-between items-center py-4 px-5 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                            <span class="text-sm font-semibold text-slate-300">Impôt fédéral</span>
+                        </div>
+                        <span class="text-lg font-black text-rose-400" id="impotFederal">$0</span>
+                    </div>
+                    
+                    <div class="breakdown-row flex justify-between items-center py-4 px-5 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                            <span class="text-sm font-semibold text-slate-300">Impôt provincial (QC)</span>
+                        </div>
+                        <span class="text-lg font-black text-rose-400" id="impotProvincial">$0</span>
+                    </div>
+                    
+                    <div class="breakdown-row flex justify-between items-center py-4 px-5 rounded-xl" id="rrqRow">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                            <span class="text-sm font-semibold text-slate-300">RRQ</span>
+                        </div>
+                        <span class="text-lg font-black text-rose-400" id="rrq">$0</span>
+                    </div>
+                    
+                    <div class="breakdown-row flex justify-between items-center py-4 px-5 rounded-xl" id="aeRow">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                            <span class="text-sm font-semibold text-slate-300">Assurance-emploi</span>
+                        </div>
+                        <span class="text-lg font-black text-rose-400" id="ae">$0</span>
+                    </div>
+                    
+                    <div class="breakdown-row flex justify-between items-center py-4 px-5 rounded-xl" id="rqapRow">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                            <span class="text-sm font-semibold text-slate-300">RQAP</span>
+                        </div>
+                        <span class="text-lg font-black text-rose-400" id="rqap">$0</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-5 px-5 rounded-xl bg-slate-900/70 border-2 border-rose-500/30 mt-6">
+                        <span class="text-base font-black text-slate-100">Total des déductions</span>
+                        <span class="text-2xl font-black text-rose-400" id="totalDeductions">$0</span>
+                    </div>
+                </div>
+
+                <!-- Effective Tax Rate -->
+                <div class="bg-slate-900/70 rounded-2xl p-6 border-2 border-slate-800">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-400 uppercase tracking-wide">Taux effectif</span>
+                        <span class="text-3xl sm:text-4xl font-black text-slate-100" id="tauxEffectif">0%</span>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
-      </div>
-    `;
 
-    container.innerHTML = html;
-  }
+        <!-- Opportunity Cards - Native Monetization -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl sm:text-4xl font-black mb-3">
+                    <span class="bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
+                        Optimisez Vos Finances
+                    </span>
+                </h2>
+                <p class="text-slate-400 text-base sm:text-lg">Tirez le maximum de votre salaire net</p>
+            </div>
+            
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                
+                <!-- Card 1: Hypothèque -->
+                <a href="#" class="opportunity-card glass-card glass-card-hover rounded-3xl p-8 block group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-black text-slate-100 mb-3 group-hover:text-emerald-400 transition-colors">
+                        Capacité d'emprunt
+                    </h3>
+                    <p class="text-sm text-slate-400 mb-5 leading-relaxed">
+                        Vous pouvez emprunter jusqu'à <span class="font-bold text-emerald-400 text-base" id="montantHypotheque">$0</span> pour votre propriété
+                    </p>
+                    <div class="flex items-center text-sm text-emerald-400 font-bold group-hover:gap-3 gap-2 transition-all">
+                        <span>Calculer mon hypothèque</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </div>
+                </a>
 
-  updateFinancialTips(netSalary) {
-    console.log('💡 Mise à jour conseils financiers');
-    
-    const container = document.getElementById('financial-tips');
-    if (!container) return;
-    
-    const monthlyNet = netSalary / 12;
-    
-    const budgetBreakdown = {
-      housing: Math.round(monthlyNet * 0.30),
-      transport: Math.round(monthlyNet * 0.15),
-      food: Math.round(monthlyNet * 0.12),
-      debtMax: Math.round(monthlyNet * 0.20),
-      savings: Math.round(monthlyNet * 0.10),
-      fun: Math.round(monthlyNet * 0.13)
-    };
-    
-    const recommendation = financialTips.savingsRecommendations.find(rec => 
-      netSalary >= rec.minSalary && netSalary <= rec.maxSalary
-    ) || financialTips.savingsRecommendations[0];
+                <!-- Card 2: CELIAPP -->
+                <a href="#" class="opportunity-card glass-card glass-card-hover rounded-3xl p-8 block group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-black text-slate-100 mb-3 group-hover:text-emerald-400 transition-colors">
+                        Épargne CELIAPP
+                    </h3>
+                    <p class="text-sm text-slate-400 mb-5 leading-relaxed">
+                        Profitez d'une épargne potentielle de <span class="font-bold text-emerald-400 text-base" id="montantEpargne">$0</span>/an et de 8 000$ de droits
+                    </p>
+                    <div class="flex items-center text-sm text-emerald-400 font-bold group-hover:gap-3 gap-2 transition-all">
+                        <span>Ouvrir un compte</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </div>
+                </a>
 
-    const alerts = [];
-    if (monthlyNet < 3000) {
-      alerts.push({
-        icon: '⚠️',
-        text: 'Évitez les dettes de consommation, concentrez-vous sur l\'épargne d\'urgence',
-        color: 'amber'
-      });
-    }
-    if (monthlyNet > 6000) {
-      alerts.push({
-        icon: '🎯',
-        text: 'Excellent niveau ! Maximisez vos REER pour réduire vos impôts',
-        color: 'green'
-      });
-    }
-    if (budgetBreakdown.housing > 2000) {
-      alerts.push({
-        icon: '🏠',
-        text: 'Logement > 2000$/mois ? Considérez la banlieue ou la colocation',
-        color: 'blue'
-      });
-    }
+                <!-- Card 3: Cashback -->
+                <a href="#" class="opportunity-card glass-card glass-card-hover rounded-3xl p-8 block group sm:col-span-2 lg:col-span-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-black text-slate-100 mb-3 group-hover:text-emerald-400 transition-colors">
+                        Cashback optimal
+                    </h3>
+                    <p class="text-sm text-slate-400 mb-5 leading-relaxed">
+                        Récupérez jusqu'à <span class="font-bold text-emerald-400 text-base" id="montantCashback">$0</span>/an avec la meilleure carte pour votre profil
+                    </p>
+                    <div class="flex items-center text-sm text-emerald-400 font-bold group-hover:gap-3 gap-2 transition-all">
+                        <span>Comparer les cartes</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </div>
+                </a>
 
-    const html = `
-      <div class="space-y-4">
-        <div class="bg-white rounded-lg p-3 border border-emerald-100">
-          <div class="text-sm font-semibold text-emerald-800 mb-3">💰 Budget mensuel recommandé</div>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="flex justify-between">
-              <span class="text-gray-600">🏠 Logement max :</span>
-              <span class="font-semibold text-emerald-700">${this.formatCurrency(budgetBreakdown.housing)}</span>
             </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">🚗 Transport max :</span>
-              <span class="font-semibold text-blue-700">${this.formatCurrency(budgetBreakdown.transport)}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">🛒 Alimentation :</span>
-              <span class="font-semibold text-purple-700">${this.formatCurrency(budgetBreakdown.food)}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">💳 Dettes MAX :</span>
-              <span class="font-semibold text-red-700">${this.formatCurrency(budgetBreakdown.debtMax)}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">💾 Épargne min :</span>
-              <span class="font-semibold text-green-700">${this.formatCurrency(budgetBreakdown.savings)}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">🎮 Loisirs :</span>
-              <span class="font-semibold text-orange-700">${this.formatCurrency(budgetBreakdown.fun)}</span>
-            </div>
-          </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 text-xs">
-          <div class="text-center p-2 bg-blue-50 rounded">
-            <div class="font-semibold text-blue-700">CELIAPP</div>
-            <div class="text-blue-600">${this.formatCurrency(recommendation.celiapp)}/mois</div>
-          </div>
-          <div class="text-center p-2 bg-purple-50 rounded">
-            <div class="font-semibold text-purple-700">REER</div>
-            <div class="text-purple-600">${this.formatCurrency(recommendation.rrsp)}/mois</div>
-          </div>
-          <div class="text-center p-2 bg-green-50 rounded">
-            <div class="font-semibold text-green-700">CELI</div>
-            <div class="text-green-600">${this.formatCurrency(recommendation.tfsa)}/mois</div>
-          </div>
+        <!-- Tax Info Banner -->
+        <div class="glass-card rounded-2xl p-6 mt-8 sm:mt-12 border border-emerald-500/30 animate-fade-in" style="animation-delay: 0.4s;">
+            <div class="flex items-start gap-4">
+                <svg class="w-6 h-6 text-emerald-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <p class="text-sm font-bold text-emerald-400 mb-2">Taux fiscaux 2026 à jour</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        Tous les calculs sont basés sur les taux officiels du Québec et du Canada, incluant l'indexation annuelle des tranches d'imposition et des plafonds de cotisations sociales.
+                    </p>
+                </div>
+            </div>
         </div>
-       
-       ${alerts.length > 0 ? `
-         <div class="space-y-2">
-           ${alerts.map(alert => `
-             <div class="flex items-start text-xs p-2 bg-${alert.color}-50 rounded border border-${alert.color}-200">
-               <span class="mr-2 mt-0.5">${alert.icon}</span>
-               <span class="text-${alert.color}-700">${alert.text}</span>
-             </div>
-           `).join('')}
-         </div>
-       ` : ''}
-       
-       <div class="space-y-2">
-         ${recommendation.tips.map(tip => `
-           <div class="flex items-start text-xs">
-             <span class="text-emerald-500 mr-2 mt-0.5">✓</span>
-             <span class="text-emerald-700">${tip}</span>
-           </div>
-         `).join('')}
-       </div>
-       
-       <div class="pt-2 border-t border-emerald-200 space-y-1">
-         <div class="text-xs text-emerald-600">
-           💡 <strong>Règle d'or :</strong> Ne jamais dépasser ${this.formatCurrency(budgetBreakdown.debtMax)}/mois en dettes
-         </div>
-         <div class="text-xs text-emerald-600">
-           🛡️ <strong>Fonds d'urgence :</strong> ${this.formatCurrency(monthlyNet * 6)} (6 mois d'expenses)
-         </div>
-       </div>
-     </div>
-   `;
 
-   container.innerHTML = html;
- }
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-slate-500 text-sm space-y-2">
+            <p class="font-semibold">© 2026 SalaireNet.ca - Calculateur de salaire net Québec</p>
+            <p class="text-xs">
+                Les résultats sont approximatifs. Consultez un fiscaliste pour une évaluation précise de votre situation.
+            </p>
+        </footer>
 
- formatCurrency(amount) {
-   return new Intl.NumberFormat('fr-CA', {
-     style: 'currency',
-     currency: 'CAD',
-     minimumFractionDigits: 0,
-     maximumFractionDigits: 0
-   }).format(amount).replace('CA', '').trim();
- }
-}
+    </div>
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
- console.log('🎬 DOM chargé, initialisation...');
- new SalaryCalculator();
-});
-</script>
+    <!-- JavaScript -->
+    <script>
+        // ==========================================
+        // CONSTANTES FISCALES 2026 (QUÉBEC/CANADA)
+        // Indexation de +4.5% appliquée sur les valeurs 2024
+        // ==========================================
+        
+        const FISCAL_2026 = {
+            // Exemptions de base
+            exemptionBaseFederale: 16129, // 15439 * 1.045
+            exemptionBaseProvinciale: 18056, // 17283 * 1.045
+            
+            // RRQ (Régime de rentes du Québec)
+            rrq: {
+                taux: 0.064, // 6.4%
+                maxGainsAdmissibles: 70300, // Estimation 2026
+                exemption: 3500
+            },
+            
+            // AE (Assurance-emploi)
+            ae: {
+                taux: 0.0132, // 1.32%
+                maxGainsAssurables: 65700 // Estimation 2026
+            },
+            
+            // RQAP (Régime québécois d'assurance parentale)
+            rqap: {
+                taux: 0.00494 // 0.494%
+            },
+            
+            // Tranches d'imposition fédérale 2026 (indexées +4.5%)
+            tranchesFederales: [
+                { min: 0, max: 55867, taux: 0.15 },        // 53359 * 1.045
+                { min: 55867, max: 111733, taux: 0.205 },  // 106717 * 1.045
+                { min: 111733, max: 173205, taux: 0.26 },  // 165430 * 1.045
+                { min: 173205, max: 246752, taux: 0.29 },  // 235675 * 1.045
+                { min: 246752, max: Infinity, taux: 0.33 }
+            ],
+            
+            // Tranches d'imposition provinciale Québec 2026 (indexées +4.5%)
+            tranchesProvinciales: [
+                { min: 0, max: 51780, taux: 0.14 },        // 49275 * 1.045
+                { min: 51780, max: 103545, taux: 0.19 },   // 98540 * 1.045
+                { min: 103545, max: 126000, taux: 0.24 },  // 120095 * 1.045
+                { min: 126000, max: Infinity, taux: 0.2575 }
+            ]
+        };
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1912647362757171"
-     crossorigin="anonymous"></script>
-          
-</Base>
+        // ==========================================
+        // VARIABLES GLOBALES
+        // ==========================================
+        
+        let employmentType = 'salarie';
+        let currentPeriod = 'annuel';
+        let modeRealisteActive = false;
+        let debounceTimer = null;
+        
+        // Variables pour l'animation de compteur
+        let currentDisplayedValue = 0;
+        let targetValue = 0;
+        let animationFrame = null;
+
+        // ==========================================
+        // FORMATAGE MONÉTAIRE (CORRECTION BUG)
+        // ==========================================
+        
+        /**
+         * Fonction stricte de formatage monétaire
+         * CRITIQUE: Retourne uniquement une string formatée, jamais de concaténation
+         */
+        function formatMoney(valeur) {
+            if (valeur === null || valeur === undefined || isNaN(valeur)) {
+                return '$0';
+            }
+            
+            const montant = Math.round(valeur);
+            const signe = montant < 0 ? '-' : '';
+            const valeurAbs = Math.abs(montant);
+            
+            // Format canadien avec espaces
+            const formatted = valeurAbs.toLocaleString('fr-CA', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+            
+            return `${signe}${formatted} $`;
+        }
+
+        /**
+         * Met à jour un élément avec un montant formaté
+         * CRITIQUE: Utilise innerText pour remplacer complètement le contenu
+         */
+        function updateMontant(elementId, valeur) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                // Nettoie complètement l'élément
+                element.innerText = formatMoney(valeur);
+            }
+        }
+
+        /**
+         * Animation de compteur "counting up" pour le hero number
+         */
+        function animateValue(elementId, start, end, duration = 800) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const startTime = performance.now();
+            const range = end - start;
+            
+            function updateValue(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = start + (range * easeOut);
+                
+                element.innerText = formatMoney(current);
+                
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(updateValue);
+                } else {
+                    element.innerText = formatMoney(end);
+                }
+            }
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+            
+            requestAnimationFrame(updateValue);
+        }
+
+        // ==========================================
+        // UTILITAIRES
+        // ==========================================
+        
+        function convertirSelonPeriode(montantAnnuel) {
+            switch(currentPeriod) {
+                case 'mensuel':
+                    return montantAnnuel / 12;
+                case 'bihebdo':
+                    return montantAnnuel / 26;
+                case 'hebdo':
+                    return montantAnnuel / 52;
+                default:
+                    return montantAnnuel;
+            }
+        }
+
+        function getPeriodLabel() {
+            const labels = {
+                'annuel': 'par année',
+                'mensuel': 'par mois',
+                'bihebdo': 'aux 2 semaines',
+                'hebdo': 'par semaine'
+            };
+            return labels[currentPeriod] || 'par année';
+        }
+
+        // ==========================================
+        // CALCULS FISCAUX
+        // ==========================================
+        
+        function calculerImpotProgressif(revenuImposable, tranches) {
+            let impot = 0;
+            
+            for (const tranche of tranches) {
+                if (revenuImposable > tranche.min) {
+                    const montantDansTranche = Math.min(
+                        revenuImposable - tranche.min,
+                        tranche.max - tranche.min
+                    );
+                    impot += montantDansTranche * tranche.taux;
+                }
+            }
+            
+            return impot;
+        }
+
+        function calculerRRQ(salaireBrut) {
+            if (employmentType === 'freelance') return 0;
+            
+            const gainsAdmissibles = Math.min(
+                Math.max(0, salaireBrut - FISCAL_2026.rrq.exemption),
+                FISCAL_2026.rrq.maxGainsAdmissibles - FISCAL_2026.rrq.exemption
+            );
+            
+            return gainsAdmissibles * FISCAL_2026.rrq.taux;
+        }
+
+        function calculerAE(salaireBrut) {
+            if (employmentType === 'freelance') return 0;
+            
+            const gainsAssurables = Math.min(salaireBrut, FISCAL_2026.ae.maxGainsAssurables);
+            return gainsAssurables * FISCAL_2026.ae.taux;
+        }
+
+        function calculerRQAP(salaireBrut) {
+            if (employmentType === 'freelance') return 0;
+            
+            return salaireBrut * FISCAL_2026.rqap.taux;
+        }
+
+        // ==========================================
+        // CALCUL MODE RÉALISTE (FEATURE VIRALE)
+        // ==========================================
+        
+        function calculerTauxHoraireRealiste(salaireNetAnnuel, salaireBrutAnnuel) {
+            if (!modeRealisteActive) return null;
+            
+            const heuresTransport = parseFloat(document.getElementById('heuresTransport').value) || 0;
+            const coutTransport = parseFloat(document.getElementById('coutTransport').value) || 0;
+            
+            // Heures de travail standard: 40h/semaine * 52 semaines = 2080h/an
+            const heuresTravailStandard = 2080;
+            
+            // Heures de transport annuelles
+            const heuresTransportAnnuelles = heuresTransport * 52;
+            
+            // Heures totales (travail + transport)
+            const heuresTotalesReelles = heuresTravailStandard + heuresTransportAnnuelles;
+            
+            // Coût de transport annuel
+            const coutTransportAnnuel = coutTransport * 12;
+            
+            // Salaire net ajusté (après transport)
+            const salaireNetAjuste = salaireNetAnnuel - coutTransportAnnuel;
+            
+            // Taux horaire affiché (basé sur heures standard)
+            const tauxHoraireAffiche = salaireBrutAnnuel / heuresTravailStandard;
+            
+            // Taux horaire réel (basé sur heures totales + coûts)
+            const tauxHoraireReel = salaireNetAjuste / heuresTotalesReelles;
+            
+            return {
+                tauxAffiche: tauxHoraireAffiche,
+                tauxReel: tauxHoraireReel,
+                difference: tauxHoraireAffiche - tauxHoraireReel,
+                pourcentagePerte: ((tauxHoraireAffiche - tauxHoraireReel) / tauxHoraireAffiche) * 100
+            };
+        }
+
+        function afficherResultatRealiste(resultat) {
+            const resultDiv = document.getElementById('realisticResult');
+            const textElement = document.getElementById('tauxHoraireRealiste');
+            
+            if (!resultat || !modeRealisteActive) {
+                resultDiv.classList.add('hidden');
+                return;
+            }
+            
+            resultDiv.classList.remove('hidden');
+            
+            const tauxAfficheStr = resultat.tauxAffiche.toFixed(2);
+            const tauxReelStr = resultat.tauxReel.toFixed(2);
+            const perteStr = resultat.pourcentagePerte.toFixed(0);
+            
+            textElement.innerHTML = `
+                Votre taux horaire affiché est <span class="font-black text-slate-100">${tauxAfficheStr} $/h</span>, 
+                mais votre taux <span class="font-black text-orange-400">RÉEL</span> est 
+                <span class="font-black text-orange-400">${tauxReelStr} $/h</span>
+                <span class="text-xs text-slate-400 block mt-2">(${perteStr}% de perte due au transport)</span>
+            `;
+        }
+
+        // ==========================================
+        // CALCUL PRINCIPAL
+        // ==========================================
+        
+        function calculerSalaireNet() {
+            const salaireBrutAnnuel = parseFloat(document.getElementById('salaireBrut').value) || 0;
+            
+            if (salaireBrutAnnuel <= 0) {
+                // Reset tous les affichages
+                updateMontant('salaireNet', 0);
+                updateMontant('impotFederal', 0);
+                updateMontant('impotProvincial', 0);
+                updateMontant('rrq', 0);
+                updateMontant('ae', 0);
+                updateMontant('rqap', 0);
+                updateMontant('totalDeductions', 0);
+                document.getElementById('tauxEffectif').innerText = '0%';
+                updateMontant('montantEpargne', 0);
+                updateMontant('montantCashback', 0);
+                updateMontant('montantHypotheque', 0);
+                document.getElementById('realisticResult').classList.add('hidden');
+                return;
+            }
+            
+            // 1. Cotisations sociales
+            const rrq = calculerRRQ(salaireBrutAnnuel);
+            const ae = calculerAE(salaireBrutAnnuel);
+            const rqap = calculerRQAP(salaireBrutAnnuel);
+            
+            // 2. Revenu imposable
+            const revenuImposable = salaireBrutAnnuel - rrq - rqap;
+            
+            // 3. Impôt fédéral
+            const revenuImposableFederal = Math.max(0, revenuImposable - FISCAL_2026.exemptionBaseFederale);
+            const impotFederal = calculerImpotProgressif(revenuImposableFederal, FISCAL_2026.tranchesFederales);
+            
+            // 4. Impôt provincial
+            const revenuImposableProvincial = Math.max(0, revenuImposable - FISCAL_2026.exemptionBaseProvinciale);
+            const impotProvincial = calculerImpotProgressif(revenuImposableProvincial, FISCAL_2026.tranchesProvinciales);
+            
+            // 5. Total déductions
+            const totalDeductions = impotFederal + impotProvincial + rrq + ae + rqap;
+            
+            // 6. Salaire net annuel
+            const salaireNetAnnuel = salaireBrutAnnuel - totalDeductions;
+            
+            // 7. Taux effectif
+            const tauxEffectif = salaireBrutAnnuel > 0 
+                ? ((totalDeductions / salaireBrutAnnuel) * 100).toFixed(1)
+                : 0;
+            
+            // 8. Conversion selon période
+            const salaireNet = convertirSelonPeriode(salaireNetAnnuel);
+            const impotFed = convertirSelonPeriode(impotFederal);
+            const impotProv = convertirSelonPeriode(impotProvincial);
+            const rrqPeriode = convertirSelonPeriode(rrq);
+            const aePeriode = convertirSelonPeriode(ae);
+            const rqapPeriode = convertirSelonPeriode(rqap);
+            const totalDed = convertirSelonPeriode(totalDeductions);
+            
+            // 9. Mise à jour affichage avec animation pour le hero number
+            animateValue('salaireNet', currentDisplayedValue, salaireNet, 800);
+            currentDisplayedValue = salaireNet;
+            
+            updateMontant('impotFederal', -impotFed);
+            updateMontant('impotProvincial', -impotProv);
+            updateMontant('rrq', -rrqPeriode);
+            updateMontant('ae', -aePeriode);
+            updateMontant('rqap', -rqapPeriode);
+            updateMontant('totalDeductions', -totalDed);
+            
+            document.getElementById('tauxEffectif').innerText = `${tauxEffectif}%`;
+            document.getElementById('periodLabel').innerText = getPeriodLabel();
+            
+            // 10. Opportunités (basées sur salaire net annuel)
+            const epargnePotentielle = salaireNetAnnuel * 0.10; // 10%
+            const cashbackPotentiel = (salaireNetAnnuel * 0.60) * 0.02; // 2% sur 60% dépenses
+            const capaciteEmprunt = salaireNetAnnuel * 4.5; // 4.5x salaire net
+            
+            updateMontant('montantEpargne', epargnePotentielle);
+            updateMontant('montantCashback', cashbackPotentiel);
+            updateMontant('montantHypotheque', capaciteEmprunt);
+            
+            // 11. Mode Réaliste
+            if (modeRealisteActive) {
+                const resultatRealiste = calculerTauxHoraireRealiste(salaireNetAnnuel, salaireBrutAnnuel);
+                afficherResultatRealiste(resultatRealiste);
+            } else {
+                document.getElementById('realisticResult').classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // EVENT LISTENERS
+        // ==========================================
+        
+        // Toggle Type d'emploi
+        document.getElementById('btnSalarie').addEventListener('click', function() {
+            employmentType = 'salarie';
+            this.classList.add('toggle-active');
+            document.getElementById('btnFreelance').classList.remove('toggle-active');
+            
+            // Afficher les cotisations
+            document.getElementById('rrqRow').style.display = 'flex';
+            document.getElementById('aeRow').style.display = 'flex';
+            document.getElementById('rqapRow').style.display = 'flex';
+            
+            calculerSalaireNet();
+        });
+
+        document.getElementById('btnFreelance').addEventListener('click', function() {
+            employmentType = 'freelance';
+            this.classList.add('toggle-active');
+            document.getElementById('btnSalarie').classList.remove('toggle-active');
+            
+            // Masquer les cotisations
+            document.getElementById('rrqRow').style.display = 'none';
+            document.getElementById('aeRow').style.display = 'none';
+            document.getElementById('rqapRow').style.display = 'none';
+            
+            calculerSalaireNet();
+        });
+
+        // Toggle Période
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentPeriod = this.dataset.period;
+                
+                document.querySelectorAll('.period-btn').forEach(b => {
+                    b.classList.remove('toggle-active');
+                    b.classList.add('text-slate-400');
+                });
+                
+                this.classList.add('toggle-active');
+                this.classList.remove('text-slate-400');
+                
+                calculerSalaireNet();
+            });
+        });
+
+        // Toggle Mode Réaliste
+        document.getElementById('modeRealisteToggle').addEventListener('click', function() {
+            modeRealisteActive = !modeRealisteActive;
+            
+            this.classList.toggle('active');
+            
+            const inputs = document.getElementById('realisticInputs');
+            if (modeRealisteActive) {
+                inputs.classList.remove('hidden');
+            } else {
+                inputs.classList.add('hidden');
+            }
+            
+            calculerSalaireNet();
+        });
+
+        // Input Salaire avec debouncing
+        document.getElementById('salaireBrut').addEventListener('input', function() {
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+            }
+            
+            debounceTimer = setTimeout(() => {
+                calculerSalaireNet();
+            }, 300);
+        });
+
+        // Inputs Mode Réaliste avec debouncing
+        ['heuresTransport', 'coutTransport'].forEach(inputId => {
+            document.getElementById(inputId).addEventListener('input', function() {
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+                
+                debounceTimer = setTimeout(() => {
+                    if (modeRealisteActive) {
+                        calculerSalaireNet();
+                    }
+                }, 300);
+            });
+        });
+
+        // ==========================================
+        // INITIALISATION
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            calculerSalaireNet();
+        });
+    </script>
+
+</body>
+</html>
